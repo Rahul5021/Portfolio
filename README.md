@@ -31,16 +31,16 @@ This repository contains the source code for a personal resume website built usi
 ## Setup
 
 1. Clone or download the repository to your local machine.
-```bash
+    ```bash
    git clone https://github.com/Rahul5021/Portfolio
 
 2. Import the database schema and sample data into your MySQL database using the provided SQL files (schema.sql, data.sql).
 3. Update the database configuration in the include/config.php file with your MySQL credentials.
-```php
-$servername = "localhost"; // Your MySQL server address
-$username = "root"; // Your MySQL username
-$password = ""; // Your MySQL password
-$database = "db_name"; // Your MySQL database name
+    ```php
+    $servername = "localhost"; // Your MySQL server address
+    $username = "root"; // Your MySQL username
+    $password = ""; // Your MySQL password
+    $database = "db_name"; // Your MySQL database name
 4. Place the project files in your web server's document root directory.
 5. Access the website through your web browser.
 
