@@ -27,3 +27,8 @@ This repository contains the source code for a personal resume website built usi
 - Bootstrap 5.3.2
 - jQuery (Included with Bootstrap)
 - Any text editor or IDE (e.g., Visual Studio Code, Sublime Text)
+
+## Setup
+
+1. Clone or download the repository to your local machine.
+git clone https://github.com/Rahul5021/Portfolio
