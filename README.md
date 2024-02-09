@@ -34,7 +34,8 @@ This repository contains the source code for a personal resume website built usi
     ```bash
    git clone https://github.com/Rahul5021/Portfolio
 
-2. Import the database schema and sample data into your MySQL database using the provided SQL files (schema.sql, data.sql).
+2. Create the required database schema and populate it with sample data in your MySQL database manually.
+
 3. Update the database configuration in the include/config.php file with your MySQL credentials.
     ```php
     $servername = "localhost"; // Your MySQL server address
