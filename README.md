@@ -31,4 +31,5 @@ This repository contains the source code for a personal resume website built usi
 ## Setup
 
 1. Clone or download the repository to your local machine.
-git clone https://github.com/Rahul5021/Portfolio
+```bash
+   git clone https://github.com/username/resume-website.git
