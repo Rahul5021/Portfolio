@@ -443,7 +443,7 @@ $data_user = mysqli_fetch_assoc($result_user);
       </div>
       <div class="text-center mt-3"><button type="submit" name="send_message" onclick="downloadCV()"><i
             class="bi bi-download"></i>Download
-          CV</button></div>
+          Resume</button></div>
     </div>
   </section><!-- End Resume Section -->
 
