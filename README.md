@@ -1,63 +1,63 @@
-# Portfolio Website
+# Rahul Agrawal — Portfolio
 
-This repository contains the source code for a personal resume website built using PHP and Bootstrap. The website provides information about the user's profile, skills, education, certifications, projects, professional experiences, and contact details.
+Personal portfolio website showcasing my work in data analysis, machine learning, and business analytics.
 
-## Table of Contents
+**Live site:** [rahulagrawal.com.np](https://rahulagrawal.com.np)
 
-- [Features](#features)
-- [Requirements](#requirements)
-- [Setup](#setup)
-- [File Structure](#file-structure)
-- [Contributing](#contributing)
-- [License](#license)
+## About
+
+BCA graduate with a keen interest in data analysis, machine learning, and algorithm development. This site showcases my projects, skills, and background — built as a fully static site for speed, simplicity, and zero-maintenance hosting.
+
+## Tech stack
+
+- HTML5, CSS3, vanilla JavaScript
+- [Bootstrap 5](https://getbootstrap.com/) for layout components and modal
+- [Web3Forms](https://web3forms.com/) for contact form submission (no backend required)
+- [Font Awesome](https://fontawesome.com/) for icons
+- Google Fonts (Poppins, Roboto)
+
+## Structure
+
+```
+├── index.html
+├── styles/
+│   └── style.css
+├── scripts/
+│   └── scripts.js
+└── assets/
+    ├── favicon.ico
+    ├── profile_pic.webp
+    ├── icon/
+    └── project_images/
+```
 
 ## Features
 
-- Display user profile information dynamically fetched from a MySQL database.
-- Showcase skills, education, certifications, projects, and professional experiences.
-- Allow visitors to download the user's resume.
-- Provide a contact form for visitors to send messages directly to the user.
-- Display social media links for further interaction.
+- Responsive design (mobile, tablet, desktop)
+- Accessible navigation with keyboard support
+- Real-time contact form validation
+- SEO-optimized with Open Graph, Twitter Card, and Schema.org structured data
+- Fast static hosting via Cloudflare Pages — no server or database required
 
-## Requirements
+## Deployment
 
-- PHP (Tested with PHP 7.x)
-- MySQL Database
-- Web Server (Apache, Nginx, etc.)
-- Bootstrap 5.3.2
-- jQuery (Included with Bootstrap)
-- Any text editor or IDE (e.g., Visual Studio Code, Sublime Text)
+This site is deployed via [Cloudflare Pages](https://pages.cloudflare.com/), connected directly to this repository. Any push to `main` automatically redeploys the live site.
 
-## Setup
+## Projects featured
 
-1. Clone or download the repository to your local machine.
-    ```bash
-   git clone https://github.com/Rahul5021/Portfolio
+| Project | Stack | Link |
+|---|---|---|
+| Crop Recommendation System | Flask, Machine Learning, REST APIs | [GitHub](https://github.com/Rahul5021/crop-recommendation-system) |
+| Air Quality Classifier | Python, Flask, Docker | [GitHub](https://github.com/Rahul5021/air-quality-classifier) |
+| Laptop Price Prediction | Python, Pandas, Scikit-learn | [GitHub](https://github.com/Rahul5021/Laptop-Price-Prediction) |
+| Liquidity Analysis Dashboard | Tableau, Excel, Banking Analytics | [View Dashboard](https://public.tableau.com/app/profile/rahul.agrawal5196/viz/LiquidityAnalysisDasboard/Dashboard1?publish=yes) |
 
-2. Create the required database schema and populate it with sample data in your MySQL database manually.
+## Contact
 
-3. Update the database configuration in the include/config.php file with your MySQL credentials.
-    ```php
-    $servername = "localhost"; // Your MySQL server address
-    $username = "root"; // Your MySQL username
-    $password = ""; // Your MySQL password
-    $database = "db_name"; // Your MySQL database name
-4. Place the project files in your web server's document root directory.
-5. Access the website through your web browser.
-
-## File Structure
-
-- `index.php`: Main entry point of the website.
-- `include/config.php`: Configuration file containing database credentials.
-- `assets/`: Directory containing CSS, JavaScript, images, and vendor libraries.
-- `schema.sql`: SQL file containing the database schema.
-- `data.sql`: SQL file containing sample data for the database.
-- `README.md`: This README file.
-
-## Contributing
-Contributions are welcome! If you find any issues or have suggestions for improvements, feel free to open an issue or create a pull request.
+- Email: agrawal.rahul.1025@gmail.com
+- LinkedIn: [agrawalrahul1025](https://www.linkedin.com/in/agrawalrahul1025/)
+- GitHub: [Rahul5021](https://github.com/Rahul5021)
 
 ## License
 
-This project is licensed under the MIT License. See the [LICENSE](LICENSE) file for details.
-
+Personal project — feel free to reference the structure, but please don't copy the content directly.
