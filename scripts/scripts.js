@@ -4,8 +4,9 @@ const navLinks = document.getElementById('navLinks');
 menuToggle.addEventListener('click', () => {
     navLinks.classList.toggle('active');
     menuToggle.classList.toggle('active'); // Toggle the cross appearance
+    const isExpanded = navLinks.classList.contains('active');
+    menuToggle.setAttribute('aria-expanded', isExpanded);
 });
-
 const contactForm = document.getElementById('contactForm');
 
 contactForm.addEventListener('submit', function (event) {
@@ -25,8 +26,7 @@ contactForm.addEventListener('submit', function (event) {
             errorText.style.display = 'block';
             isValid = false;
         } else {
-            // If the field is filled, remove error styles
-            input.style.borderColor = '#ccc'; // Reset to original color
+            input.style.borderColor = '#28a745';
             errorText.style.display = 'none';
         }
     });
@@ -72,3 +72,5 @@ inputs.forEach((input) => {
         }
     });
 });
+
+document.querySelector('footer p').innerHTML = `&copy; ${new Date().getFullYear()} Rahul Agrawal. All Rights Reserved.`;
