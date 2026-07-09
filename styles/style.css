@@ -546,6 +546,120 @@ h2:hover {
     font-size: 1rem;
 }
 
+/* Experience Section */
+#experience {
+    padding: 20px 20px 0;
+    text-align: center;
+}
+
+#experience h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 30px;
+}
+
+.experience-item {
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: left;
+    background-color: #f7fafd;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 25px 30px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.experience-header h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+}
+
+.experience-meta {
+    display: block;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.9rem;
+    color: #666;
+    margin-bottom: 15px;
+}
+
+.experience-item ul {
+    padding-left: 20px;
+    margin: 0;
+}
+
+.experience-item ul li {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.95rem;
+    color: #2c3e50;
+    margin-bottom: 8px;
+    line-height: 1.5;
+}
+
+/* Certifications Section */
+#certifications {
+    padding: 20px 20px 0;
+    text-align: center;
+}
+
+#certifications h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 30px;
+}
+
+.certifications-list {
+    list-style: none;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: left;
+}
+
+.certifications-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    background-color: #f7fafd;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease;
+}
+
+.certifications-list li:hover {
+    box-shadow: 0 6px 12px rgba(10, 146, 180, 0.15);
+}
+
+.certifications-list li i {
+    font-size: 1.6rem;
+    color: #1abc9c;
+}
+
+.certifications-list li strong {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.certifications-list li span {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+    }
+
 /* Footer Styling */
 footer {
     text-align: center;
@@ -706,3 +820,5 @@ footer {
         font-size: 0.85rem;
     }
 }
+
+
