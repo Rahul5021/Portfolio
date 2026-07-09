@@ -286,6 +286,23 @@ h2:hover {
     /* Adjust max-width to fit the content */
 }
 
+.skill-group-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #1abc9c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 30px 0 15px;
+}
+
+.skills li i {
+    font-size: 32px;
+    width: 40px;
+    margin-right: 12px;
+    text-align: center;
+}
+
 .skills li {
     display: flex;
     align-items: center;
