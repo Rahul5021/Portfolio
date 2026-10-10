@@ -1,76 +1,118 @@
-const menuToggle = document.getElementById('menuToggle');
-const navLinks = document.getElementById('navLinks');
+document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
 
-menuToggle.addEventListener('click', () => {
-    navLinks.classList.toggle('active');
-    menuToggle.classList.toggle('active'); // Toggle the cross appearance
-    const isExpanded = navLinks.classList.contains('active');
-    menuToggle.setAttribute('aria-expanded', isExpanded);
-});
-const contactForm = document.getElementById('contactForm');
-
-contactForm.addEventListener('submit', function (event) {
-    event.preventDefault(); // Prevent default form submission
-
-    const form = event.target;
-    const formData = new FormData(form);
-    const inputs = form.querySelectorAll('.item'); // Select all input and textarea fields
-    let isValid = true; // Flag to check if the form is valid
-
-    // Validate each input field
-    inputs.forEach((input) => {
-        const errorText = input.nextElementSibling; // Get the corresponding error message
-        if (!input.value.trim()) {
-            // If the field is empty, show the error and apply styles
-            input.style.borderColor = 'red';
-            errorText.style.display = 'block';
-            isValid = false;
-        } else {
-            input.style.borderColor = '#28a745';
-            errorText.style.display = 'none';
-        }
-    });
-
-    // If all fields are valid, proceed with form submission
-    if (isValid) {
-        fetch(form.action, {
-            method: form.method,
-            body: formData,
-            headers: {
-                'Accept': 'application/json'
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    const setMenu = (open) => {
+        if (!menuToggle || !navLinks) return;
+        menuToggle.classList.toggle('active', open);
+        navLinks.classList.toggle('active', open);
+        menuToggle.setAttribute('aria-expanded', String(open));
+    };
+    if (menuToggle && navLinks) {
+        setMenu(false);
+        menuToggle.addEventListener('click', () => setMenu(!navLinks.classList.contains('active')));
+        navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenu(false)));
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && navLinks.classList.contains('active')) {
+                setMenu(false);
+                menuToggle.focus();
             }
-        }).then(response => {
-            if (response.ok) {
-                // Show the Bootstrap modal on success
-                const successModal = new bootstrap.Modal(document.getElementById('successModal'));
-                successModal.show();
-                form.reset(); // Optional: Clear the form fields
-            } else {
-                alert('There was a problem with the form submission. Please try again.');
-            }
-        }).catch(error => {
-            console.error('Error:', error);
-            alert('There was an error submitting the form. Please try again.');
         });
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.custom-navbar')) setMenu(false);
+        });
+        window.matchMedia('(min-width: 992px)').addEventListener('change', () => setMenu(false));
     }
-});
 
-// Real-time validation: Reset or apply errors as the user types in an input
-const inputs = contactForm.querySelectorAll('.item');
-inputs.forEach((input) => {
-    input.addEventListener('input', () => {
-        const errorText = input.nextElementSibling;
+    const footer = document.querySelector('footer p');
+    if (footer) footer.textContent = `Â© ${new Date().getFullYear()} Rahul Agrawal. All Rights Reserved.`;
 
-        if (input.value.trim()) {
-            // Reset error styles if the input is not empty
-            input.style.borderColor = '#28a745'; // Reset to original color
-            errorText.style.display = 'none';
-        } else {
-            // If the input is empty again, reapply error styles
-            input.style.borderColor = 'red';
-            errorText.style.display = 'block';
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    const fields = [...form.querySelectorAll('.item')];
+    const button = form.querySelector('button[type="submit"]');
+    const errorBox = document.getElementById('formError');
+    const successBox = document.getElementById('formResponse');
+    const normalButtonText = button ? button.textContent : 'Send Message';
+    let submitting = false;
+
+    // Custom messages still use the browser's built-in email validity check.
+    form.noValidate = true;
+    const display = (box, message) => {
+        if (!box) return;
+        box.textContent = message;
+        box.style.display = message ? 'block' : 'none';
+        box.setAttribute('role', box === errorBox ? 'alert' : 'status');
+    };
+    const validate = field => {
+        const empty = !field.value.trim();
+        const valid = !empty && field.validity.valid;
+        const error = field.nextElementSibling;
+        field.classList.toggle('is-invalid', !valid);
+        field.classList.toggle('is-valid', valid);
+        field.setAttribute('aria-invalid', String(!valid));
+        if (error && error.classList.contains('error-txt')) {
+            error.id = `${field.id}-error`;
+            field.setAttribute('aria-describedby', error.id);
+            error.textContent = empty ? `Please enter your ${field.name}.` : 'Please enter a valid email address.';
+            error.style.display = valid ? 'none' : 'block';
+        }
+        return valid;
+    };
+    fields.forEach(field => field.addEventListener('input', () => {
+        if (field.hasAttribute('aria-invalid')) validate(field);
+    }));
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (submitting) return;
+        display(errorBox, '');
+        display(successBox, '');
+        fields.forEach(field => { field.value = field.value.trim(); });
+        const results = fields.map(validate);
+        if (results.includes(false)) {
+            fields[results.indexOf(false)].focus();
+            return;
+        }
+        const payload = new FormData(form);
+        submitting = true;
+        form.setAttribute('aria-busy', 'true');
+        if (button) { button.disabled = true; button.textContent = 'Sendingâ€¦'; }
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => controller.abort(), 20000);
+        try {
+            const response = await fetch(form.action, {
+                method: form.method || 'POST', body: payload,
+                headers: { Accept: 'application/json' }, signal: controller.signal
+            });
+            const result = await response.json();
+            if (!response.ok || result.success !== true) throw new Error('Submission rejected');
+            form.reset();
+            fields.forEach(field => {
+                field.classList.remove('is-valid', 'is-invalid');
+                field.removeAttribute('aria-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error-txt')) error.style.display = 'none';
+            });
+            display(successBox, 'Thank you! Your message has been sent successfully.');
+            const modal = document.getElementById('successModal');
+            if (modal && window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+            }
+        } catch (error) {
+            display(errorBox, error.name === 'AbortError'
+                ? 'The request timed out, so delivery could not be confirmed. Please check your connection before trying again.'
+                : 'Your message could not be confirmed as sent. Please try again or email agrawal.rahul.1025@gmail.com.');
+        } finally {
+            window.clearTimeout(timer);
+            // A CAPTCHA response is single-use; obtain a fresh one for another submission.
+            if (window.hcaptcha && typeof window.hcaptcha.reset === 'function') {
+                try { window.hcaptcha.reset(); } catch (_) { /* Widget may not yet be ready. */ }
+            }
+            submitting = false;
+            form.removeAttribute('aria-busy');
+            if (button) { button.disabled = false; button.textContent = normalButtonText; }
         }
     });
 });
-
-document.querySelector('footer p').innerHTML = `&copy; ${new Date().getFullYear()} Rahul Agrawal. All Rights Reserved.`;
