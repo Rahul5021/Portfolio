@@ -414,7 +414,7 @@ h2:hover {
 }
 
 .card-body ul li::before {
-    content: "âœ”";
+    content: "\2713";
     color: green;
     margin-right: 10px;
 }
