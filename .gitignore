@@ -1,0 +1,10 @@
+
+# Local article template
+blog/_article-template.html
+
+# Generated deployment files
+dist/
+
+# Python cache files
+__pycache__/
+*.py[cod]

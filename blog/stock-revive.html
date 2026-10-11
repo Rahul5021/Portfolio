@@ -40,11 +40,78 @@
         .threshold-table { font-size:.94rem; min-width:580px; }
         .threshold-table th { background:#edf3ff; color:#12325a; }
         .tag { border:1px solid #dbe2ea; border-radius:30px; padding:.35rem .7rem; font-size:.78rem; font-weight:600; background:#fff; }
-        .video-box { background:#07182d; border-radius:18px; padding:1.5rem; }
-        .video-box video { width:min(100%,320px); aspect-ratio:9/16; border-radius:13px; background:#000; display:block; margin:auto; }
+        /* A purpose-built, responsive space for vertical demo videos. */
+        .video-showcase {
+            position:relative;
+            overflow:hidden;
+            isolation:isolate;
+            background:linear-gradient(135deg,#06182d 0%,#103358 100%);
+            border-radius:22px;
+            padding:clamp(1.25rem,4vw,2.75rem);
+            color:#fff;
+        }
+        .video-showcase::before {
+            content:"";
+            position:absolute;
+            z-index:-1;
+            width:380px;
+            height:380px;
+            right:-130px;
+            top:-160px;
+            border-radius:50%;
+            background:radial-gradient(circle,rgba(71,164,255,.27),transparent 70%);
+            pointer-events:none;
+        }
+        .video-showcase .video-eyebrow {
+            color:#8fd9ff;
+            font-size:.75rem;
+            font-weight:700;
+            letter-spacing:.1em;
+            text-transform:uppercase;
+        }
+        .video-showcase h3 {color:#fff; letter-spacing:-.03em;}
+        .video-showcase .video-summary { color:#d2e2f2; font-size:.97rem; line-height:1.65; }
+        .video-showcase .video-steps { list-style:none; margin:1.4rem 0; padding:0; }
+        .video-showcase .video-steps li {
+            padding:.58rem 0;
+            color:#e2ecf7;
+            font-size:.95rem;
+            border-bottom:1px solid rgba(255,255,255,.14);
+        }
+        .video-showcase .video-number {
+            display:inline-block;
+            min-width:2.1rem;
+            color:#7bd8fb;
+            font-weight:750;
+            font-size:.84rem;
+        }
+        .video-showcase .video-note { color:#bacbde; font-size:.8rem; line-height:1.5; }
+        .phone-video {
+            max-width:260px;
+            margin-inline:auto;
+            background:#030d1b;
+            border:5px solid #273e57;
+            border-radius:26px;
+            padding:6px;
+            box-shadow:0 18px 45px rgba(0,0,0,.38);
+        }
+        .phone-video video {
+            display:block;
+            width:100%;
+            height:auto;
+            aspect-ratio:9 / 16;
+            object-fit:contain;
+            border-radius:17px;
+            background:#02070d;
+        }
+        @media (max-width:575.98px) {
+            .article-body {font-size:1.01rem;line-height:1.77}
+            .video-showcase {padding:1.25rem; border-radius:17px}
+            .phone-video {max-width:260px}
+        }
         .btn { font-weight:600; }
         .foot-link { text-decoration:none; }
-        @media (max-width:575.98px) { .article-body{font-size:1.01rem;line-height:1.77} .video-box{padding:1rem} }
+
     </style>
 </head>
 <body>
@@ -177,14 +244,47 @@
 
                 <h2 id="video">A 30-second project overview</h2>
                 <p>Prefer a quick visual? This short preview introduces the stock-review problem and shows parts of the prototype. The full technical explanation is in the article above.</p>
-                <div class="video-box mb-4 text-center">
-                    <video controls playsinline preload="metadata" aria-label="30-second Stock-Revive project video" poster="assets/stock-revive-cover.jpg">
-                        <source src="assets/stock-revive-30s.mp4" type="video/mp4">
-                        Your browser doesn't support embedded video.
-                    </video>
-                    <p class="text-white-50 small mt-3 mb-0">30 seconds · Audio optional · Synthetic demonstration data</p>
-                </div>
-                <p class="mb-0"><strong>I'd love to hear your perspective:</strong> if you've worked in retail or inventory analytics, what would you measure differently?</p>
+                <!-- VIDEO SHOWCASE: desktop split layout, mobile stacked layout. -->
+                <section class="video-showcase mb-4" aria-label="Stock-Revive video demonstration">
+                    <div class="row align-items-center g-4 g-lg-5">
+                        <div class="col-md-7">
+                            <p class="video-eyebrow mb-2">See it in action &bull; 00:30</p>
+                            <h3 class="h2 fw-bold mt-0 mb-3">The idea in half a minute.</h3>
+                            <p class="video-summary mb-3">A short visual walkthrough of the challenge that inspired Stock-Revive and the inventory analytics behind it.</p>
+                            <ol class="video-steps">
+                                <li><span class="video-number">01</span>Spot overlooked shoe sizes</li>
+                                <li><span class="video-number">02</span>Explore size-level inactivity alerts</li>
+                                <li><span class="video-number">03</span>Support smarter stock reviews</li>
+                            </ol>
+                            <p class="video-note mb-3">This is a prototype using synthetic data. Alerts support human review; they do not predict demand.</p>
+                            <a class="btn btn-outline-light btn-sm" href="https://github.com/Rahul5021/stock-revive" target="_blank" rel="noopener noreferrer">Explore the source code &nearr;</a>
+                        </div>
+                        <div class="col-md-5 text-center">
+                            <div class="phone-video">
+                                <video controls playsinline preload="metadata" poster="assets/stock-revive-video-poster.jpg" aria-label="30-second Stock-Revive vertical demo with sound">
+                                    <source src="assets/stock-revive-30s.mp4" type="video/mp4">
+                                    Your browser does not support HTML5 video.
+                                    <a href="assets/stock-revive-30s.mp4">Open the video file</a>.
+                                </video>
+                            </div>
+                            <p class="video-note mt-3 mb-0">Tap play to watch &bull; Sound on/off &bull; Mobile friendly</p>
+                        </div>
+                    </div>
+                </section>
+                
+<p class="mb-0">
+    <strong>Have thoughts on this approach?</strong>
+    I'm always interested in learning how others tackle
+    similar challenges in retail analytics and inventory
+    management.
+    <a href="https://www.linkedin.com/in/agrawalrahul1025/"
+       target="_blank"
+       rel="noopener noreferrer">
+       Connect with me on LinkedIn
+    </a>
+    and share your perspective.
+</p>
+
             </div>
         </article>
     </main>
