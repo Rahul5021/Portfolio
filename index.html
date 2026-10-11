@@ -17,7 +17,953 @@
 
     <!-- Bootstrap CSS -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="styles/style.css">
+    <style>
+html {
+    scroll-behavior: smooth;
+}
+
+/* General Body Styling */
+body {
+    background: #f0f4f8;
+    background: var(--main-bg, #f0f4f8);
+    /* Fallback */
+    color: #2c3e50;
+    /* Light text for contrast */
+    font-family: 'Arial', sans-serif;
+    padding-top: 60px;
+}
+
+/* Custom Navbar Styles */
+.custom-navbar {
+    background-color: rgba(255, 255, 255, 0.9);
+    color: #333;
+    padding: 0.8rem 0;
+    position: fixed;
+    top: 0;
+    width: 100%;
+    z-index: 1000;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: background-color 0.3s ease;
+}
+
+.custom-navbar .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 1.5rem;
+}
+
+.custom-navbar .logo {
+    font-size: 1.8rem;
+    font-weight: bold;
+    color: #333;
+    text-decoration: none;
+    font-family: 'Poppins', sans-serif;
+    transition: color 0.3s ease;
+}
+
+.custom-navbar .logo:hover {
+    color: #1abc9c; /* Subtle teal color for a modern feel */
+    transform: translateY(-2px); /* Slight upward movement remains */
+    text-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); /* Soft shadow effect */
+}
+
+.custom-navbar .nav-links {
+    list-style: none;
+    display: flex;
+    gap: 2rem;
+    margin: 0;
+    transition: all 0.3s ease-in-out;
+}
+
+.custom-navbar .nav-links li {
+    display: inline;
+}
+
+.custom-navbar .nav-links a {
+    color: #333;
+    text-decoration: none;
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    transition: color 0.3s ease;
+}
+
+.custom-navbar .nav-links a:hover {
+    color: #1abc9c; /* Subtle teal for consistency with the logo */
+    letter-spacing: 0.5px; /* Slight increase in letter spacing */
+    position: relative; /* Enable positioning for border animation */
+}
+
+.custom-navbar .nav-links a::after {
+    content: "";
+    position: absolute;
+    left: 0;
+    bottom: -3px; /* Just below the text */
+    width: 0;
+    height: 2px; /* Thin underline */
+    background: linear-gradient(90deg, #1abc9c, #16a085); /* Gradient underline */
+    transition: width 0.3s ease-in-out;
+}
+
+.custom-navbar .nav-links a:hover::after {
+    width: 100%; /* Full width underline on hover */
+}
+
+
+/* Menu Toggle (Bars) */
+.menu-toggle {
+    display: none;
+    flex-direction: column;
+    gap: 4px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    position: relative;
+    z-index: 1001;
+}
+
+.menu-toggle .bar {
+    width: 25px;
+    height: 3px;
+    background-color: #333;
+    border-radius: 5px;
+    transition: all 0.3s ease;
+}
+
+.menu-toggle .bar:hover {
+    background-color: #1abc9c; /* Consistent hover color */
+    transform: scale(1.1); /* Slight enlargement for interactivity */
+}
+
+/* Menu Toggle (Cross) */
+.menu-toggle.active .bar:nth-child(1) {
+    transform: rotate(45deg) translate(5px, 5px);
+}
+
+.menu-toggle.active .bar:nth-child(2) {
+    opacity: 0;
+}
+
+.menu-toggle.active .bar:nth-child(3) {
+    transform: rotate(-45deg) translate(5px, -5px);
+}
+
+/* Header Section */
+#header {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 20px 15px;
+    margin-bottom: 10px;
+}
+
+#header img {
+    width: 175px;
+    height: 175px;
+    border-radius: 50%;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.2);
+    margin-bottom: 20px;
+}
+
+h1 {
+    font-size: 2.5rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    margin: 10px 0;
+    text-transform: uppercase;
+}
+
+h3 {
+    font-size: 1.75rem;
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    margin: 5px 0 15px;
+}
+
+.bio {
+    font-size: 1rem;
+    font-family: 'Roboto', sans-serif;
+    font-weight: 400;
+    line-height: 1.6;
+}
+
+.bio-text {
+    font-family: 'Poppins', sans-serif;
+    /* Clean and modern font */
+    font-size: 1rem;
+    /* Adjust the font size */
+    line-height: 1.8;
+    /* Spacing between lines */
+    text-align: center;
+    /* Centers the text horizontally */
+    color: #2c3e50;
+    /* Neutral text color */
+    margin: 20px auto;
+    /* Centers the paragraph block */
+    width: 60%;
+    /* Restricts the paragraph width to keep it on 3 lines */
+    word-wrap: break-word;
+    /* Ensures words wrap to the next line */
+}
+
+
+.bio i {
+    margin-right: 8px;
+}
+
+#social-media {
+    display: flex;
+    justify-content: center;
+    /* Center icons horizontally */
+    align-items: center;
+    /* Center icons vertically */
+    gap: 20px;
+    /* Even spacing between icons */
+}
+
+#social-media a {
+    font-size: 32px;
+    margin: 0 10px;
+    color: #2c3e50;
+    padding: 10px;
+    display: inline-block;
+    transition: color 0.3s ease;
+}
+
+#social-media a:hover {
+    color: #8499ad;
+    transform: scale(1.1) rotate(3deg);
+    transition: transform 0.3s ease, color 0.3s ease;
+}
+
+.btn:focus,
+#social-media a:focus {
+    outline: 3px dashed #007bff;
+    outline-offset: 2px;
+}
+
+
+hr {
+    width: 70%;
+    margin: 20px auto;
+    border-top: 2px solid #b0bec5;
+}
+
+/* Skill Set Section */
+#skill-set {
+    text-align: center;
+    margin-top: 0px;
+    margin: 0;
+    /* Reduced margin */
+    padding-top: 0px;
+    padding-bottom: 20px;
+    padding-right: 20px;
+    padding-left: 20px;
+    font-family: 'Roboto', sans-serif;
+}
+
+h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-top: 0;
+    /* Reduced top margin */
+    margin-bottom: 20px;
+    /* Reduced bottom margin */
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+    /* For positioning the underline */
+    overflow: hidden;
+    /* Ensures the line doesn't overflow the element */
+    transition: color 0.3s ease;
+    /* Smooth transition for text color */
+}
+
+h2:hover {
+    color: #575f68;
+    /* Change text color on hover */
+}
+
+.skills {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    list-style: none;
+    padding: 0;
+    margin: 0 auto 10px;
+    max-width: 900px;
+}
+
+.skill-group-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: #1abc9c;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin: 30px 0 15px;
+}
+
+.skills li i {
+    font-size: 22px;
+    width: auto;
+    margin-right: 0;
+}
+
+.skills li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #fff;
+    border: 1px solid #e0e6eb;
+    border-radius: 30px;
+    padding: 10px 20px;
+    font-size: 1rem;
+    font-weight: 500;
+    color: #2c3e50;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.skills li img {
+    width: 50px;
+    height: 50px;
+    margin-right: 15px;
+}
+
+.skills li:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 14px rgba(10, 146, 180, 0.2);
+    border-color: rgba(10, 146, 180, 0.4);
+}
+
+.skills li a {
+    text-decoration: none;
+    color: #2c3e50;
+    transition: color 0.3s ease-in-out;
+}
+
+.skills li a:hover {
+    color: #007bff;
+}
+
+/* Projects Section */
+#project-list {
+    margin-top: 0px;
+    padding-top: 0px;
+    padding-left: 20px;
+    padding-right: 20px;
+    padding-bottom: 0px;
+    overflow: hidden;
+}
+
+#project-list h2 {
+    font-weight: 600;
+    font-size: 2.5rem;
+    letter-spacing: 1.5px;
+    margin-bottom: 20px;
+    text-transform: uppercase;
+    text-align: center;
+    color: #333;
+}
+
+.project-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+    gap: 20px;
+    justify-content: center;
+    /* Ensures single project stays centered */
+    overflow: hidden;
+    /* Prevents hover scaling from affecting layout */
+}
+
+.card {
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    /* Subtle shadow */
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+    /* Smooth transitions */
+}
+
+.card:hover {
+    box-shadow: 0 10px 20px rgba(10, 146, 180, 0.4);
+    border-color: rgba(10, 146, 180, 0.7);
+    background-color: #f7fafd;
+    /* Softer background color */
+}
+
+.card img {
+    width: 100%;
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.card-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.card-text {
+    font-size: 0.9rem;
+    margin-bottom: 15px;
+    color: #666;
+}
+
+.card-body ul {
+    padding: 0;
+    list-style: none;
+    margin-bottom: 15px;
+}
+
+.card-body ul li {
+    margin-bottom: 5px;
+}
+
+.card-body ul li::before {
+    content: "\2713";
+    color: green;
+    margin-right: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 10px 15px;
+    background-color: #0072ED;
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* Contact Section */
+#contact {
+    padding: 20px 20px;
+    text-align: center;
+}
+
+#contact h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 40px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    position: relative;
+}
+
+#contact .form-group {
+    margin-bottom: 20px;
+    text-align: left;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+#contact label {
+    font-family: 'Roboto', sans-serif;
+    font-weight: 500;
+    color: #333;
+    display: block;
+    margin-bottom: 5px;
+}
+
+#contact input,
+#contact textarea {
+    width: 100%;
+    padding: 12px 15px;
+    border: 1px solid #ccc;
+    border-radius: 30px;
+    margin-bottom: 10px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    color: #2c3e50;
+    background-color: #f9f9f9;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+#contact textarea{
+    resize: none;
+    margin-bottom: 0px;
+}
+
+#contact input:focus,
+#contact textarea:focus {
+    border-color: #28a745; /* Bootstrap success color */
+    box-shadow: 0 0 10px rgba(40, 167, 69, 0.25);
+    outline: none;
+}
+
+#contact .error-txt{
+    display: none;
+}
+
+#contact .btn {
+    display: inline-block;
+    padding: 14px 24px;
+    background-color: #0072ED;
+    color: white;
+    text-align: center;
+    border: none;
+    border-radius: 30px;
+    cursor: pointer;
+    transition: background-color 0.3s ease, transform 0.3s ease;
+    font-size: 1rem;
+    margin-top: 20px;
+}
+
+#contact .btn:hover {
+    background-color: #0056b3;
+    transform: translateY(-2px) scale(1.05);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Custom Dialog Box */
+#contact .form-response {
+    font-family: 'Roboto', sans-serif;
+    font-size: 1rem;
+    text-align: center;
+    margin-top: 20px;
+}
+
+#contact .error-txt {
+    display: none;
+    color: red;
+    font-size: 0.9rem;
+    margin-top: 5px;
+    font-family: 'Roboto', sans-serif;
+}
+
+#formError {
+    color: #d9534f; /* Bootstrap danger color */
+    font-weight: bold;
+}
+.modal-header.bg-success {
+    background-color: #28a745 !important; /* Bootstrap success green */
+    border-bottom: none;
+}
+
+.modal-body p {
+    font-size: 1.2rem;
+    font-family: 'Roboto', sans-serif;
+    color: #333;
+    margin-bottom: 20px;
+}
+
+.modal-body i {
+    color: #28a745; /* Green checkmark */
+    margin-top: 10px;
+}
+
+.modal-footer .btn-primary {
+    border-radius: 30px;
+    padding: 10px 30px;
+    font-size: 1rem;
+}
+
+/* Experience Section */
+#experience {
+    padding: 20px 20px 0;
+    text-align: center;
+}
+
+#experience h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 30px;
+}
+
+.experience-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: 20px;
+    max-width: 1100px;
+    margin: 0 auto;
+}
+
+.experience-card {
+    position: relative;
+    text-align: left;
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    padding: 22px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease, border-color 0.3s ease;
+}
+
+.experience-card:hover {
+    box-shadow: 0 10px 20px rgba(10, 146, 180, 0.4);
+    border-color: rgba(10, 146, 180, 0.7);
+}
+
+.experience-card h3 {
+    font-family: 'Poppins', sans-serif;
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 4px;
+}
+
+.experience-meta {
+    display: block;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    color: #555;
+}
+
+.experience-dates {
+    display: block;
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.8rem;
+    color: #626b73;
+    margin-bottom: 12px;
+}
+
+.experience-card ul {
+    padding-left: 18px;
+    margin: 0;
+}
+
+.experience-card ul li {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.88rem;
+    color: #2c3e50;
+    margin-bottom: 6px;
+    line-height: 1.4;
+}
+
+.badge-current {
+    position: absolute;
+    top: -10px;
+    right: 16px;
+    background-color: #1abc9c;
+    color: #fff;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 3px 10px;
+    border-radius: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Certifications Section */
+#certifications {
+    padding: 20px 20px 0;
+    text-align: center;
+}
+
+#certifications h2 {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    font-size: 2.5rem;
+    color: #2c3e50;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    margin-bottom: 30px;
+}
+
+.certifications-list {
+    list-style: none;
+    max-width: 600px;
+    margin: 0 auto;
+    padding: 0;
+    text-align: left;
+}
+
+.certifications-list li {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 20px;
+    margin-bottom: 12px;
+    background-color: #f7fafd;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    transition: box-shadow 0.3s ease;
+}
+
+.certifications-list li:hover {
+    box-shadow: 0 6px 12px rgba(10, 146, 180, 0.15);
+}
+
+.certifications-list li i {
+    font-size: 1.6rem;
+    color: #1abc9c;
+}
+
+.certifications-list li strong {
+    display: block;
+    font-family: 'Poppins', sans-serif;
+    font-size: 1rem;
+    color: #2c3e50;
+}
+
+.certifications-list li span {
+    font-family: 'Roboto', sans-serif;
+    font-size: 0.85rem;
+    color: #666;
+    }
+
+/* Footer Styling */
+footer {
+    text-align: center;
+    font-size: 0.85rem;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-right: 20px;
+    padding-left: 20px;
+    background-color: rgba(0, 0, 0, 0.158);
+    /* Matches body background */
+    color: #2c3e50;
+}
+
+
+/* Responsive Styling */
+@media (max-width: 1024px) {
+    .skills {
+        grid-template-columns: repeat(2, 1fr);
+        /* 2 columns on medium screens */
+    }
+}
+
+@media (max-width: 768px) {
+    .custom-navbar .nav-links {
+        flex-direction: column;
+        background-color: rgba(255, 255, 255, 0.9);
+        position: absolute;
+        top: 100%;
+        left: 0;
+        width: 100%;
+        transform: translateY(-100%);
+        opacity: 0;
+        visibility: hidden;
+    }
+
+    .custom-navbar .nav-links.active {
+        transform: translateY(0);
+        opacity: 1;
+        visibility: visible;
+    }
+
+    .menu-toggle {
+        display: flex;
+    }
+
+    .custom-navbar .container {
+        justify-content: space-between;
+    }
+
+
+    #header img {
+        width: 120px;
+        height: 120px;
+    }
+
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .bio {
+        font-size: 0.9rem;
+    }
+
+    .skills {
+    gap: 10px;
+    }
+    
+    .skills li {
+        font-size: 0.9rem;
+        padding: 8px 16px;
+    }
+    
+    .skills li i {
+        font-size: 18px;
+    }
+
+    #project-list {
+        padding: 20px 10px;
+    }
+
+    .card img {
+        height: 180px;
+    }
+
+    .card-body {
+        padding: 15px;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+    }
+
+    .card-text {
+        font-size: 0.85rem;
+    }
+
+    .btn {
+        padding: 8px 12px;
+        font-size: 0.9rem;
+    }
+
+    #contact {
+        padding: 40px 10px;
+    }
+
+    #contact h2 {
+        font-size: 2rem;
+        margin-bottom: 30px;
+    }
+
+    #contact .form-group {
+        max-width: 100%;
+    }
+
+    #contact input,
+    #contact textarea {
+        padding: 10px;
+        font-size: 0.9rem;
+    }
+
+    #contact .btn {
+        padding: 12px 20px;
+        font-size: 0.9rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .skills li {
+        font-size: 0.85rem;
+        padding: 7px 14px;
+    }
+    .card img {
+        height: 120px;
+    }
+
+    .card-title {
+        font-size: 1rem;
+    }
+
+    .card-text {
+        font-size: 0.8rem;
+    }
+
+    .btn {
+        padding: 6px 10px;
+        font-size: 0.8rem;
+    }
+
+    #contact {
+        padding: 30px 5px;
+    }
+
+    #contact h2 {
+        font-size: 1.75rem;
+        margin-bottom: 25px;
+    }
+
+    #contact input,
+    #contact textarea {
+        padding: 8px;
+        font-size: 0.85rem;
+    }
+
+    #contact .btn {
+        padding: 10px 18px;
+        font-size: 0.85rem;
+    }
+}
+
+
+/* Compatibility and accessibility updates for the updated index.html. */
+html { scroll-padding-top: 100px; }
+body { color: var(--bs-body-color, #2c3e50); }
+.bio-text { width: 100%; max-width: 760px; padding-inline: 12px; }
+#header img { object-fit: cover; }
+.custom-navbar .nav-links a { position: relative; }
+.custom-navbar .nav-links a:hover { letter-spacing: normal; }
+.custom-navbar .nav-links { gap: 1.15rem; padding-left: 0; }
+#project-list { max-width: 1200px; margin-inline: auto; }
+.card-body { display: flex; flex-direction: column; }
+.card-body > .btn { align-self: flex-start; margin-top: auto; }
+#education h2 { text-align: center; }
+#contact textarea { resize: vertical; min-height: 150px; }
+#contact .form-group { margin: 0 auto 16px; }
+#contact .error-txt { color: var(--bs-danger, #b02a37); }
+#contact .item.is-invalid { border-color: var(--bs-danger, #dc3545); }
+#contact .item.is-valid { border-color: var(--bs-success, #198754); }
+#contact .item.is-invalid + .error-txt { display: block; }
+a:focus-visible, button:focus-visible { outline: 3px solid var(--bs-primary, #0d6efd); outline-offset: 4px; }
+button:disabled { opacity: .65; cursor: wait; }
+@media (max-width: 991.98px) {
+  .menu-toggle { display: flex; padding: 12px; }
+  .custom-navbar .nav-links {
+    flex-direction: column; position: absolute; top: 100%; left: 0;
+    width: 100%; background: #fff; padding: 16px 24px;
+    gap: 0; max-height: 75vh; overflow-y: auto;
+    transform: translateY(-12px); opacity: 0; visibility: hidden;
+  }
+  .custom-navbar .nav-links.active { transform: translateY(0); opacity: 1; visibility: visible; }
+  .custom-navbar .nav-links a { display: block; padding: 12px 0; }
+}
+@media (max-width: 480px) {
+  .custom-navbar .logo { font-size: 1.35rem; }
+  .bio-text { padding-inline: 0; }
+  h2, #project-list h2, #experience h2, #certifications h2 { font-size: 1.75rem; }
+  .card-text, .experience-card ul li { font-size: .95rem; }
+  .card img { height: 180px; }
+  .btn { font-size: .95rem; padding: 10px 16px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}
+
+/* Four projects across on desktop; stack on smaller screens. */
+#project-list { max-width: 1440px; }
+.project-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.project-grid > .card { min-width: 0; }
+@media (max-width: 1199.98px) {
+    .project-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (max-width: 575.98px) {
+    .project-grid { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Stock-Revive featured panel: scoped to avoid altering the existing four-card grid. */
+#stock-revive .stock-video-frame { width: min(100%, 280px); aspect-ratio: 9 / 16; }
+#stock-revive video { display: block; object-fit: contain; }
+#stock-revive .stock-preview { aspect-ratio: 16 / 9; object-fit: cover; background: #e9ecef; transition: transform .2s ease; }
+#stock-revive a:hover .stock-preview { transform: translateY(-2px); }
+@media (prefers-reduced-motion: reduce) { #stock-revive .stock-preview { transition: none; } }
+    </style>
     <link
         href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Roboto:wght@400;500&display=swap"
         rel="stylesheet">
@@ -201,6 +1147,93 @@
         <!-- Projects Section -->
         <div id="project-list">
             <h2>Projects</h2>
+
+<!-- Featured case study: Stock-Revive. Existing four-card grid remains untouched. -->
+<section id="stock-revive" class="container-fluid px-0 mb-5" aria-labelledby="stock-revive-title">
+    <div class="bg-light border rounded-4 p-3 p-md-4 p-xl-5 shadow-sm">
+        <div class="row g-4 align-items-center">
+            <div class="col-lg-7">
+                <span class="badge rounded-pill text-bg-primary mb-3 px-3 py-2">Featured project · Retail analytics</span>
+                <h3 class="h2 fw-bold text-dark mb-3" id="stock-revive-title">Stock-Revive</h3>
+                <p class="fs-5 fw-semibold mb-3">When a shoe style sells, but some sizes don't.</p>
+                <p class="text-secondary mb-3">
+                    Inspired by my family's footwear business in Nepal, I built a Python and SQLite prototype
+                    to find overlooked shoe sizes, highlight stock for review, and explore sales performance.
+                </p>
+                <p class="text-secondary mb-3">
+                    I tested 30-, 60-, and 90-day inactivity thresholds to explore the trade-off between
+                    early alerts and an overly long review list. Alerts suggest human review, not predictions.
+                </p>
+                <div class="d-flex flex-wrap gap-2 mb-3" aria-label="Technologies used">
+                    <span class="badge text-bg-white border text-dark p-2">Python</span>
+                    <span class="badge text-bg-white border text-dark p-2">Pandas</span>
+                    <span class="badge text-bg-white border text-dark p-2">SQLite</span>
+                    <span class="badge text-bg-white border text-dark p-2">Streamlit</span>
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+                    <a class="btn btn-primary" href="https://github.com/Rahul5021/stock-revive" target="_blank" rel="noopener noreferrer">
+                        View code &amp; README <span aria-hidden="true">↗</span>
+                    </a>
+                    <a class="fw-semibold link-primary" href="https://github.com/Rahul5021/stock-revive#alert-evaluation" target="_blank" rel="noopener noreferrer">
+                        Explore the threshold analysis <span aria-hidden="true">↗</span>
+                    </a>
+                    <!-- Add a direct LinkedIn article link here after supplying its published URL. -->
+                </div>
+                <p class="small text-secondary mb-0">
+                    <strong>Data note:</strong> The demonstration uses reproducible synthetic data;
+                    real-world business impact has not yet been measured.
+                </p>
+            </div>
+            <div class="col-lg-5 d-flex flex-column align-items-center justify-content-center">
+                <p class="fw-semibold small mb-2 text-dark">30-second project teaser</p>
+                <div class="stock-video-frame rounded-4 overflow-hidden border shadow-sm bg-dark">
+                    <video class="w-100 h-100" controls playsinline preload="metadata"
+                           poster="assets/project_images/stock_revive_video_poster.webp"
+                           aria-label="30-second Stock-Revive project video with music">
+                        <source src="assets/videos/stock_revive_30s.mp4" type="video/mp4">
+                        Your browser does not support video playback.
+                        <a href="assets/videos/stock_revive_30s.mp4">Download the video</a>.
+                    </video>
+                </div>
+                <p class="text-secondary small text-center mt-2 mb-0">Tap play to watch with sound · Works on mobile</p>
+            </div>
+        </div>
+        <div class="border-top mt-4 pt-4">
+            <h4 class="h5 fw-semibold mb-3">Inside the application</h4>
+            <div class="row row-cols-2 row-cols-lg-4 g-3">
+                <div class="col">
+                    <a class="text-decoration-none" target="_blank" rel="noopener noreferrer" href="assets/project_images/stock_revive_overview.webp">
+                        <img class="w-100 rounded-3 border stock-preview" src="assets/project_images/stock_revive_overview.webp" loading="lazy"
+                             alt="Stock-Revive inventory overview with configurable rules and flagged stock metrics">
+                        <span class="d-block small fw-semibold text-dark mt-2">Inventory overview <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="text-decoration-none" target="_blank" rel="noopener noreferrer" href="assets/project_images/stock_revive_size_alerts.webp">
+                        <img class="w-100 rounded-3 border stock-preview" src="assets/project_images/stock_revive_size_alerts.webp" loading="lazy"
+                             alt="Individual shoe size alerts and suggested review actions">
+                        <span class="d-block small fw-semibold text-dark mt-2">Size-level alerts <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="text-decoration-none" target="_blank" rel="noopener noreferrer" href="assets/project_images/stock_revive_sales_analytics.webp">
+                        <img class="w-100 rounded-3 border stock-preview" src="assets/project_images/stock_revive_sales_analytics.webp" loading="lazy"
+                             alt="Sales analytics view including revenue, cost of goods sold and gross profit">
+                        <span class="d-block small fw-semibold text-dark mt-2">Sales analytics <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+                <div class="col">
+                    <a class="text-decoration-none" target="_blank" rel="noopener noreferrer" href="assets/project_images/stock_revive_record_sale.webp">
+                        <img class="w-100 rounded-3 border stock-preview" src="assets/project_images/stock_revive_record_sale.webp" loading="lazy"
+                             alt="Record a sale form with quantity, unit selling price and sale date">
+                        <span class="d-block small fw-semibold text-dark mt-2">Record a sale <span aria-hidden="true">↗</span></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
             <div class="project-grid">
                 <!-- Project Card 1 -->
                 <div class="card">
@@ -352,7 +1385,127 @@
         <p>&copy; 2026 Rahul Agrawal. All Rights Reserved.</p>
     </footer>
 
-    <script src="scripts/scripts.js"></script>
+    <script>
+document.addEventListener('DOMContentLoaded', () => {
+    'use strict';
+
+    const menuToggle = document.getElementById('menuToggle');
+    const navLinks = document.getElementById('navLinks');
+    const setMenu = (open) => {
+        if (!menuToggle || !navLinks) return;
+        menuToggle.classList.toggle('active', open);
+        navLinks.classList.toggle('active', open);
+        menuToggle.setAttribute('aria-expanded', String(open));
+    };
+    if (menuToggle && navLinks) {
+        setMenu(false);
+        menuToggle.addEventListener('click', () => setMenu(!navLinks.classList.contains('active')));
+        navLinks.querySelectorAll('a').forEach(link => link.addEventListener('click', () => setMenu(false)));
+        document.addEventListener('keydown', event => {
+            if (event.key === 'Escape' && navLinks.classList.contains('active')) {
+                setMenu(false);
+                menuToggle.focus();
+            }
+        });
+        document.addEventListener('click', event => {
+            if (!event.target.closest('.custom-navbar')) setMenu(false);
+        });
+        window.matchMedia('(min-width: 992px)').addEventListener('change', () => setMenu(false));
+    }
+
+    const footer = document.querySelector('footer p');
+    if (footer) footer.textContent = `© ${new Date().getFullYear()} Rahul Agrawal. All Rights Reserved.`;
+
+    const form = document.getElementById('contactForm');
+    if (!form) return;
+    const fields = [...form.querySelectorAll('.item')];
+    const button = form.querySelector('button[type="submit"]');
+    const errorBox = document.getElementById('formError');
+    const successBox = document.getElementById('formResponse');
+    const normalButtonText = button ? button.textContent : 'Send Message';
+    let submitting = false;
+
+    // Custom messages still use the browser's built-in email validity check.
+    form.noValidate = true;
+    const display = (box, message) => {
+        if (!box) return;
+        box.textContent = message;
+        box.style.display = message ? 'block' : 'none';
+        box.setAttribute('role', box === errorBox ? 'alert' : 'status');
+    };
+    const validate = field => {
+        const empty = !field.value.trim();
+        const valid = !empty && field.validity.valid;
+        const error = field.nextElementSibling;
+        field.classList.toggle('is-invalid', !valid);
+        field.classList.toggle('is-valid', valid);
+        field.setAttribute('aria-invalid', String(!valid));
+        if (error && error.classList.contains('error-txt')) {
+            error.id = `${field.id}-error`;
+            field.setAttribute('aria-describedby', error.id);
+            error.textContent = empty ? `Please enter your ${field.name}.` : 'Please enter a valid email address.';
+            error.style.display = valid ? 'none' : 'block';
+        }
+        return valid;
+    };
+    fields.forEach(field => field.addEventListener('input', () => {
+        if (field.hasAttribute('aria-invalid')) validate(field);
+    }));
+
+    form.addEventListener('submit', async event => {
+        event.preventDefault();
+        if (submitting) return;
+        display(errorBox, '');
+        display(successBox, '');
+        fields.forEach(field => { field.value = field.value.trim(); });
+        const results = fields.map(validate);
+        if (results.includes(false)) {
+            fields[results.indexOf(false)].focus();
+            return;
+        }
+        const payload = new FormData(form);
+        submitting = true;
+        form.setAttribute('aria-busy', 'true');
+        if (button) { button.disabled = true; button.textContent = 'Sending…'; }
+        const controller = new AbortController();
+        const timer = window.setTimeout(() => controller.abort(), 20000);
+        try {
+            const response = await fetch(form.action, {
+                method: form.method || 'POST', body: payload,
+                headers: { Accept: 'application/json' }, signal: controller.signal
+            });
+            const result = await response.json();
+            if (!response.ok || result.success !== true) throw new Error('Submission rejected');
+            form.reset();
+            fields.forEach(field => {
+                field.classList.remove('is-valid', 'is-invalid');
+                field.removeAttribute('aria-invalid');
+                const error = field.nextElementSibling;
+                if (error && error.classList.contains('error-txt')) error.style.display = 'none';
+            });
+            display(successBox, 'Thank you! Your message has been sent successfully.');
+            const modal = document.getElementById('successModal');
+            if (modal && window.bootstrap && window.bootstrap.Modal) {
+                window.bootstrap.Modal.getOrCreateInstance(modal).show();
+            }
+        } catch (error) {
+            display(errorBox, error.name === 'AbortError'
+                ? 'The request timed out, so delivery could not be confirmed. Please check your connection before trying again.'
+                : 'Your message could not be confirmed as sent. Please try again or email agrawal.rahul.1025@gmail.com.');
+        } finally {
+            window.clearTimeout(timer);
+            // A CAPTCHA response is single-use; obtain a fresh one for another submission.
+            if (window.hcaptcha && typeof window.hcaptcha.reset === 'function') {
+                try { window.hcaptcha.reset(); } catch (_) { /* Widget may not yet be ready. */ }
+            }
+            submitting = false;
+            form.removeAttribute('aria-busy');
+            if (button) { button.disabled = false; button.textContent = normalButtonText; }
+        }
+    });
+});
+
+    </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://web3forms.com/client/script.js" async defer></script>
 
