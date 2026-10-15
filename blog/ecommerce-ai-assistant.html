@@ -1,252 +1,427 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="author" content="Rahul Agrawal">
-  <meta name="description" content="How I built a hybrid e-commerce AI assistant using Gemini function calling, DuckDB, FAISS, multilingual embeddings and MMR—and learned why evidence grounding matters.">
+  <meta name="description"
+    content="How I built a hybrid e-commerce AI assistant using Gemini function calling, DuckDB, FAISS, multilingual embeddings and MMR—and learned why evidence grounding matters.">
   <link rel="canonical" href="https://rahulagrawal.com.np/blog/ecommerce-ai-assistant.html">
   <meta property="og:type" content="article">
   <meta property="og:title" content="Building an E-Commerce AI Assistant: When SQL Meets RAG">
-  <meta property="og:description" content="A project case study on combining exact SQL metrics and retrieved customer feedback—and keeping AI answers grounded.">
+  <meta property="og:description"
+    content="A project case study on combining exact SQL metrics and retrieved customer feedback—and keeping AI answers grounded.">
   <meta property="og:url" content="https://rahulagrawal.com.np/blog/ecommerce-ai-assistant.html">
   <meta property="og:image" content="https://rahulagrawal.com.np/assets/project_images/ecommerce_ai_assistant.png">
   <meta name="twitter:card" content="summary_large_image">
   <title>Building an E-Commerce AI Assistant: When SQL Meets RAG | Rahul Agrawal</title>
   <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <style>
-    :root { --ink:#172333; --blue:#2563eb; --paper:#fafaf8; --line:#e5e7eb; }
-    body { background:var(--paper); color:var(--ink); font-family:system-ui,-apple-system,"Segoe UI",sans-serif; }
-    .blog-container { max-width:1100px; }
-    .brand { font-weight:750; letter-spacing:-.5px; }
-    .accent { color:var(--blue); }
-    .article-width { max-width:820px; margin-inline:auto; }
-    .eyebrow { color:var(--blue); letter-spacing:.1em; font-size:.77rem; font-weight:750; text-transform:uppercase; }
-    .article-title { font-size:clamp(2.15rem,4.6vw,3.95rem); line-height:1.12; font-weight:760; letter-spacing:-.05em; }
-    .article-subtitle { font-size:clamp(1.1rem,2vw,1.35rem); line-height:1.65; }
-    .article-body { font-size:1.08rem; line-height:1.85; }
-    .article-body p { margin-bottom:1.45rem; }
-    .article-body h2 { font-size:clamp(1.55rem,2.7vw,2.05rem); line-height:1.25; letter-spacing:-.035em; font-weight:720; margin-top:3.2rem; margin-bottom:1.2rem; scroll-margin-top:90px; }
-    .article-body h3 { font-size:1.25rem; font-weight:700; margin-top:2rem; margin-bottom:.8rem; }
-    .article-body li { padding-bottom:.35rem; }
-    .article-body a { text-underline-offset:3px; }
-    .article-body figure { margin:2.4rem 0; }
-    .article-body figure img { width:100%; height:auto; border:1px solid var(--line); border-radius:15px; }
-    .article-body figcaption { text-align:center; color:#64748b; font-size:.88rem; line-height:1.55; margin-top:.75rem; }
-    .hero-cover { width:100%; height:auto; border-radius:18px; border:1px solid var(--line); }
-    .quote-card { border-left:4px solid var(--blue); background:#eff6ff; padding:1.25rem 1.5rem; border-radius:0 12px 12px 0; margin:2rem 0; font-weight:650; line-height:1.55; }
-    .note { background:#f1f5f9; border:1px solid #e2e8f0; border-radius:12px; padding:1.2rem 1.35rem; font-size:.97rem; line-height:1.65; }
-    .tag { border:1px solid #dbe2ea; border-radius:30px; padding:.35rem .7rem; font-size:.78rem; font-weight:600; background:#fff; }
-    .code-panel { border-radius:14px; background:#0b1b30; color:#f0f7ff; padding:1.4rem; font-size:.9rem; overflow-x:auto; line-height:1.65; }
-    .article-table { font-size:.94rem; min-width:460px; }
-    .article-table th { background:#edf3ff; color:#12325a; }
-    .foot-link { text-decoration:none; }
-    .architecture { background:#0b1b30; border-radius:18px; padding:clamp(1.1rem,3vw,2rem); margin:2.5rem 0; color:#fff; line-height:1.5; }
-    .architecture .pathbox { background:#132a48; border:1px solid #315272; border-radius:12px; padding:1rem; height:100%; }
-    .architecture .route-title { font-weight:700; font-size:.94rem; color:#d7f0ff; }
-    .architecture .route-desc { font-size:.78rem; color:#b6cbde; margin-top:.4rem; }
-    .architecture .connector { color:#91d9f9; text-align:center; font-weight:750; font-size:1.3rem; margin:.25rem 0; }
-    .architecture .centerbox { background:#123456; border:1px solid #4f83ac; border-radius:12px; padding:.85rem 1rem; text-align:center; }
-    .architecture .note-line { color:#abc7df; text-align:center; font-size:.83rem; margin-top:1rem; }
-    .ref-cite { font-size:.74em; font-weight:650; margin-left:.1em; white-space:nowrap; }
-    .ref-cite a { text-decoration:none; color:#1d4ed8; }
-    .ref-cite a:hover, .ref-cite a:focus-visible { text-decoration:underline; }
-    .research-panel { border:1px solid #cbdcf7; background:#eff6ff; border-radius:15px; padding:1.4rem 1.6rem; margin:2rem 0; }
-    .research-panel h3 { margin:0 0 .6rem!important; font-size:1.1rem; }
-    .research-panel p:last-child { margin-bottom:0; }
-    .reference-list { padding-left:1.55rem; font-size:.95rem; line-height:1.65; }
-    .reference-list li { padding:0 0 1.1rem .25rem; scroll-margin-top:90px; overflow-wrap:anywhere; }
-    .reference-list li::marker { font-weight:700; color:#1d4ed8; }
-    .reference-list a { font-weight:600; }
-    .reference-list .source-type { color:#64748b; font-size:.83rem; display:block; margin-top:.2rem; }
-    .references-intro { color:#475569; font-size:.98rem; }
-    .research-map td { vertical-align:top; }
-    .research-map { font-size:.9rem; min-width:600px; }
-    .research-map th { background:#edf3ff; }
-
-    @media (max-width:575.98px) { .article-body {font-size:1.01rem;line-height:1.77} .architecture .pathbox {margin-bottom:.5rem} }
-  </style>
+  <link rel="stylesheet" href="styles/style.css">
   <script type="application/ld+json">
   {"@context":"https://schema.org","@type":"BlogPosting","headline":"Building an E-Commerce AI Assistant: When SQL Meets RAG","author":{"@type":"Person","name":"Rahul Agrawal"},"mainEntityOfPage":"https://rahulagrawal.com.np/blog/ecommerce-ai-assistant.html","description":"Building a hybrid analytical assistant with structured SQL tools and customer-review RAG."}
   </script>
 </head>
+
 <body>
-  <nav class="navbar navbar-light bg-white border-bottom py-3">
-    <div class="container blog-container">
-      <a class="navbar-brand brand" href="../index.html">Rahul Agrawal<span class="accent">.</span></a>
-      <div class="d-flex align-items-center gap-3">
-        <a href="../index.html" class="text-decoration-none text-secondary small">Portfolio</a>
-        <a href="index.html" class="text-decoration-none fw-semibold small">Writing</a>
-      </div>
+  <header class="site-header">
+    <div class="wrap">
+      <a class="brand" href="../index.html">Rahul Agrawal</a>
+      <nav class="site-nav" aria-label="Main">
+        <a href="../index.html">Portfolio</a>
+        <a href="index.html" aria-current="page">Writing</a>
+      </nav>
     </div>
-  </nav>
-  <main class="container blog-container py-4 py-md-5">
+  </header>
+
+  <main class="wrap">
     <article>
-      <header class="article-width pt-md-3">
-        <a href="index.html" class="small text-decoration-none">&larr; All articles</a>
-        <p class="eyebrow mt-4 mb-3">Project case study &nbsp;/&nbsp; Applied AI</p>
-        <h1 class="article-title mb-4">Building an E-Commerce AI Assistant: When SQL Meets RAG</h1>
-        <p class="article-subtitle text-secondary mb-4">How I combined structured analytics and customer-review retrieval in one conversational interface—and learned why an AI answer needs evidence, not just confidence.</p>
-        <div class="d-flex flex-wrap justify-content-between gap-3 pb-4 border-bottom mb-4">
-          <span class="fw-semibold">Rahul Agrawal <span class="text-secondary fw-normal">· MSc AI &amp; Data Science</span></span>
-          <span class="text-secondary small">Project case study · Approx. 7 min read</span>
+      <header class="article-head prose">
+        <a href="index.html" class="back">&larr; All articles</a>
+        <p class="kind">Project case study · Applied AI</p>
+        <h1 class="article-title">Building an E-Commerce AI Assistant: When SQL Meets RAG</h1>
+        <p class="article-subtitle">How I combined structured analytics and customer-review retrieval in one
+          conversational interface—and learned why an AI answer needs evidence, not just confidence.</p>
+        <div class="byline">
+          <span><strong>Rahul Agrawal</strong> · MSc AI &amp; Data Science</span>
+          <span>Project case study · Approx. 7 min read</span>
         </div>
       </header>
-      <div class="article-width">
-        <img class="hero-cover mb-4" src="../assets/project_images/ecommerce_ai_assistant.png" alt="E-Commerce AI Assistant project illustration" loading="eager">
-        <div class="d-flex flex-wrap gap-2 mb-5" aria-label="Technologies used">
-          <span class="tag">Python</span><span class="tag">Gemini</span><span class="tag">DuckDB</span><span class="tag">FAISS</span><span class="tag">MMR</span><span class="tag">Streamlit</span>
-        </div>
+
+      <div class="prose">
+        <img class="hero-cover" src="../assets/project_images/ecommerce_ai_assistant.png"
+          alt="E-Commerce AI Assistant project illustration" loading="eager">
+        <ul class="tags" aria-label="Technologies used">
+          <li>Python</li>
+          <li>Gemini</li>
+          <li>DuckDB</li>
+          <li>FAISS</li>
+          <li>MMR</li>
+          <li>Streamlit</li>
+        </ul>
+        <nav class="contents" aria-labelledby="contents-title">
+          <h2 id="contents-title">In this article</h2>
+          <ol>
+            <li><a href="#two-questions">Two business questions, two kinds of evidence</a></li>
+            <li><a href="#data">Starting with the data</a></li>
+            <li><a href="#architecture">One interface, two routes</a></li>
+            <li><a href="#sql">Why I used SQL tools for hard numbers</a></li>
+            <li><a href="#rag">How the customer-review RAG pipeline works</a></li>
+            <li><a href="#iterations">Two problems that changed my approach</a></li>
+            <li><a href="#limitations">What the prototype cannot claim</a></li>
+            <li><a href="#research-design">What the research supports—and what it doesn't</a></li>
+            <li><a href="#lessons">What I learned</a></li>
+            <li><a href="#next">Where I would take it next</a></li>
+            <li><a href="#references">References and further reading</a></li>
+          </ol>
+        </nav>
       </div>
-      <div class="article-width article-body">
+
+      <div class="prose article-body">
         <h2 id="two-questions">Two business questions, two kinds of evidence</h2>
-        <p>Imagine an e-commerce manager asking, “Which product categories brought in the most revenue?” A useful answer needs actual transaction data, consistent calculations, and numbers that can be checked.</p>
-        <p>Now imagine the same person asking, “What delivery problems are customers describing?” Order totals alone can't answer that. The relevant evidence lives in customer reviews, written in everyday language.</p>
-        <p>Both questions belong in business analysis, but they need different approaches. I wanted to explore whether one conversational assistant could handle both without forcing the user to think about databases, search indexes, or the tools behind the scenes.</p>
-        <div class="quote-card">My guiding question was simple: how can an LLM help someone explore business data without becoming the source of the facts itself?</div>
-        <p>That question became my <strong>E-Commerce AI Assistant</strong>—a prototype combining SQL-backed tools for structured metrics and retrieval-augmented generation (RAG) for questions about customer experiences.</p>
-        <p>The research behind RAG is useful here: Lewis and colleagues (NeurIPS 2020) explored pairing a language model with retrieved information outside its parameters. The principle motivated my review-search path, but their experimental results do not validate my application or guarantee that its generated answers are faithful to retrieved reviews. <sup class="ref-cite"><a href="#ref-4" aria-label="Go to reference 4">[4]</a></sup></p>
+        <p>Imagine an e-commerce manager asking, “Which product categories brought in the most revenue?” A useful answer
+          needs actual transaction data, consistent calculations, and numbers that can be checked.</p>
+        <p>Now imagine the same person asking, “What delivery problems are customers describing?” Order totals alone
+          can't answer that. The relevant evidence lives in customer reviews, written in everyday language.</p>
+        <p>Both questions belong in business analysis, but they need different approaches. I wanted to explore whether
+          one conversational assistant could handle both without forcing the user to think about databases, search
+          indexes, or the tools behind the scenes.</p>
+        <div class="quote-card">My guiding question was simple: how can an LLM help someone explore business data
+          without becoming the source of the facts itself?</div>
+        <p>That question became my <strong>E-Commerce AI Assistant</strong>—a prototype combining SQL-backed tools for
+          structured metrics and retrieval-augmented generation (RAG) for questions about customer experiences.</p>
+        <p>The research behind RAG is useful here: Lewis and colleagues (NeurIPS 2020) explored pairing a language model
+          with retrieved information outside its parameters. The principle motivated my review-search path, but their
+          experimental results do not validate my application or guarantee that its generated answers are faithful to
+          retrieved reviews. <sup class="ref-cite"><a href="#ref-4" aria-label="Go to reference 4">[4]</a></sup></p>
 
         <h2 id="data">Starting with the data</h2>
-        <p>I used the <a href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce" target="_blank" rel="noopener noreferrer">Brazilian E-Commerce Public Dataset by Olist</a>, published by the dataset provider, which describes anonymised order records from 2016–2018 and includes orders, payments, customers, products and reviews. <sup class="ref-cite"><a href="#ref-1" aria-label="Go to reference 1">[1]</a></sup> For structured analysis, I organised the relevant tables in <strong>DuckDB</strong>. For qualitative questions, I worked with <strong>over 40,000 cleaned customer-review documents</strong>, primarily written in Portuguese; that processed-review count describes my project's corpus, not the size claimed by the dataset publisher.</p>
-        <p>This mattered because the assistant wasn't meant to invent a plausible business story. It needed to distinguish between a database calculation and a review-based observation—and to communicate the difference clearly.</p>
-        <div class="table-responsive rounded-3 border mb-4">
-          <table class="table table-striped table-bordered align-middle article-table mb-0">
+        <p>I used the <a href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce" target="_blank"
+            rel="noopener noreferrer">Brazilian E-Commerce Public Dataset by Olist</a>, published by the dataset
+          provider, which describes anonymised order records from 2016–2018 and includes orders, payments, customers,
+          products and reviews. <sup class="ref-cite"><a href="#ref-1" aria-label="Go to reference 1">[1]</a></sup> For
+          structured analysis, I organised the relevant tables in <strong>DuckDB</strong>. For qualitative questions, I
+          worked with <strong>over 40,000 cleaned customer-review documents</strong>, primarily written in Portuguese;
+          that processed-review count describes my project's corpus, not the size claimed by the dataset publisher.</p>
+        <p>This mattered because the assistant wasn't meant to invent a plausible business story. It needed to
+          distinguish between a database calculation and a review-based observation—and to communicate the difference
+          clearly.</p>
+        <div class="table-wrap">
+          <table class="article-table">
             <caption class="visually-hidden">Question type and evidence source</caption>
-            <thead><tr><th scope="col">Question</th><th scope="col">Evidence source</th><th scope="col">Approach</th></tr></thead>
+            <thead>
+              <tr>
+                <th scope="col">Question</th>
+                <th scope="col">Evidence source</th>
+                <th scope="col">Approach</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>Which categories earn the most revenue?</td><td>Orders and order items</td><td>Predefined DuckDB tool</td></tr>
-              <tr><td>What share of orders were cancelled?</td><td>Order statuses</td><td>Predefined DuckDB tool</td></tr>
-              <tr><td>What frustrates customers about delivery?</td><td>Review text</td><td>FAISS + MMR + Gemini</td></tr>
+              <tr>
+                <td>Which categories earn the most revenue?</td>
+                <td>Orders and order items</td>
+                <td>Predefined DuckDB tool</td>
+              </tr>
+              <tr>
+                <td>What share of orders were cancelled?</td>
+                <td>Order statuses</td>
+                <td>Predefined DuckDB tool</td>
+              </tr>
+              <tr>
+                <td>What frustrates customers about delivery?</td>
+                <td>Review text</td>
+                <td>FAISS + MMR + Gemini</td>
+              </tr>
             </tbody>
           </table>
         </div>
 
         <h2 id="architecture">One interface, two routes</h2>
-        <p>The app uses <strong>Streamlit</strong> as its chat interface and <strong>Gemini function calling</strong> to select an appropriate tool for a question. The model doesn't need to generate arbitrary SQL from scratch: it can call predefined Python functions for common business questions, which execute queries against DuckDB. For review questions, it can use a semantic-search tool.</p>
-        <div class="architecture" role="group" aria-label="Architecture: user question to Gemini, then structured analytics route or review retrieval route, then evidence-backed answer">
-          <div class="centerbox"><strong>User question</strong><div class="route-desc">Asked through Streamlit</div></div>
-          <div class="connector">↓</div>
-          <div class="centerbox"><strong>Gemini chooses a tool</strong><div class="route-desc">Function calling and answer generation</div></div>
-          <div class="connector">↓</div>
-          <div class="row g-3">
-            <div class="col-md-6"><div class="pathbox"><div class="route-title">Route A · Structured facts</div><div class="route-desc">Python analytics functions → DuckDB → metrics such as revenue and order status</div></div></div>
-            <div class="col-md-6"><div class="pathbox"><div class="route-title">Route B · Review evidence</div><div class="route-desc">Local embeddings → FAISS → MMR → selected customer reviews</div></div></div>
+        <p>The app uses <strong>Streamlit</strong> as its chat interface and <strong>Gemini function calling</strong> to
+          select an appropriate tool for a question. The model doesn't need to generate arbitrary SQL from scratch: it
+          can call predefined Python functions for common business questions, which execute queries against DuckDB. For
+          review questions, it can use a semantic-search tool.</p>
+        <div class="architecture" role="group"
+          aria-label="Architecture: user question to Gemini, then structured analytics route or review retrieval route, then evidence-backed answer">
+          <div class="centerbox"><strong>User question</strong>
+            <div class="route-desc">Asked through Streamlit</div>
           </div>
           <div class="connector">↓</div>
-          <div class="centerbox"><strong>Answer grounded in retrieved data</strong><div class="route-desc">For review questions, retrieved sources are visible in the app</div></div>
-          <p class="note-line mb-0">Conceptual overview of the implemented tool paths</p>
+          <div class="centerbox"><strong>Gemini chooses a tool</strong>
+            <div class="route-desc">Function calling and answer generation</div>
+          </div>
+          <div class="connector">↓</div>
+          <div class="routes">
+            <div class="pathbox">
+              <div class="route-title">Route A · Structured facts</div>
+              <div class="route-desc">Python analytics functions → DuckDB → metrics such as revenue and order status
+              </div>
+            </div>
+            <div class="pathbox">
+              <div class="route-title">Route B · Review evidence</div>
+              <div class="route-desc">Local embeddings → FAISS → MMR → selected customer reviews</div>
+            </div>
+          </div>
+          <div class="connector">↓</div>
+          <div class="centerbox"><strong>Answer grounded in retrieved data</strong>
+            <div class="route-desc">For review questions, retrieved sources are visible in the app</div>
+          </div>
+          <p class="note-line">Conceptual overview of the implemented tool paths</p>
         </div>
 
         <h2 id="sql">Why I used SQL tools for hard numbers</h2>
-        <p>For questions about revenue or orders, I didn't want an LLM estimating numbers from general knowledge or relying on a handful of retrieved documents. The backend provides specific analytics tools such as <code>get_category_revenue</code>, <code>get_order_status_summary</code>, and <code>get_revenue_summary</code>.</p>
-        <p>When a question requires a supported metric, Gemini can request a function call, <strong>my Python code executes it</strong>, and DuckDB returns the calculated result. Google's official documentation distinguishes a model's request for a custom tool from the application's execution of that tool; the model is not independently running arbitrary SQL. <sup class="ref-cite"><a href="#ref-3" aria-label="Go to reference 3">[3]</a></sup> DuckDB's own documentation shows how SQL query results can be returned to Python, which is the basis for this separation between calculation and explanation. <sup class="ref-cite"><a href="#ref-2" aria-label="Go to reference 2">[2]</a></sup></p>
-        <p>This is a useful boundary, but not a proof of numerical correctness: joins, aggregation definitions and filtering decisions must still be tested. I should evaluate each tool's returned values against known SQL answers rather than assume tool-calling makes the numbers automatically accurate.</p>
-        <div class="note mb-4"><strong>Design decision:</strong> Tool-calling here means selecting from implemented business functions. It is not unrestricted text-to-SQL generation.</div>
+        <p>For questions about revenue or orders, I didn't want an LLM estimating numbers from general knowledge or
+          relying on a handful of retrieved documents. The backend provides specific analytics tools such as
+          <code>get_category_revenue</code>, <code>get_order_status_summary</code>, and
+          <code>get_revenue_summary</code>.</p>
+        <p>When a question requires a supported metric, Gemini can request a function call, <strong>my Python code
+            executes it</strong>, and DuckDB returns the calculated result. Google's official documentation
+          distinguishes a model's request for a custom tool from the application's execution of that tool; the model is
+          not independently running arbitrary SQL. <sup class="ref-cite"><a href="#ref-3"
+              aria-label="Go to reference 3">[3]</a></sup> DuckDB's own documentation shows how SQL query results can be
+          returned to Python, which is the basis for this separation between calculation and explanation. <sup
+            class="ref-cite"><a href="#ref-2" aria-label="Go to reference 2">[2]</a></sup></p>
+        <p>This is a useful boundary, but not a proof of numerical correctness: joins, aggregation definitions and
+          filtering decisions must still be tested. I should evaluate each tool's returned values against known SQL
+          answers rather than assume tool-calling makes the numbers automatically accurate.</p>
+        <div class="note"><strong>Design decision:</strong> Tool-calling here means selecting from implemented business
+          functions. It is not unrestricted text-to-SQL generation.</div>
 
         <h2 id="rag">How the customer-review RAG pipeline works</h2>
-        <p>Customer reviews are different. People can describe the same delivery experience in different words, so exact keyword matching isn't always enough. I created local multilingual embeddings with Sentence Transformers and used <strong>FAISS</strong> to retrieve semantically similar reviews.</p>
-        <p>Reimers and Gurevych's Sentence-BERT paper (EMNLP 2019) provides the research foundation for comparing sentences through dense embeddings rather than running a paired language model for every possible match. <sup class="ref-cite"><a href="#ref-5" aria-label="Go to reference 5">[5]</a></sup> The particular multilingual MiniLM model used in my project is not evaluated by that paper, so its quality on Portuguese customer reviews—and on English questions about those reviews—still needs project-specific testing.</p>
-        <p>FAISS implements similarity search over dense vectors. The FAISS researchers describe different index choices and their speed, memory and retrieval-quality trade-offs. <sup class="ref-cite"><a href="#ref-6" aria-label="Go to reference 6">[6]</a></sup> A highly ranked neighbour is mathematically close under the selected embedding and distance setup; that alone does not prove its relevance to the user's intent.</p>
-        <p>My retrieval pipeline first gathers more candidates than it will send to the language model. In the code, the candidate count is calculated as:</p>
+        <p>Customer reviews are different. People can describe the same delivery experience in different words, so exact
+          keyword matching isn't always enough. I created local multilingual embeddings with Sentence Transformers and
+          used <strong>FAISS</strong> to retrieve semantically similar reviews.</p>
+        <p>Reimers and Gurevych's Sentence-BERT paper (EMNLP 2019) provides the research foundation for comparing
+          sentences through dense embeddings rather than running a paired language model for every possible match. <sup
+            class="ref-cite"><a href="#ref-5" aria-label="Go to reference 5">[5]</a></sup> The particular multilingual
+          MiniLM model used in my project is not evaluated by that paper, so its quality on Portuguese customer
+          reviews—and on English questions about those reviews—still needs project-specific testing.</p>
+        <p>FAISS implements similarity search over dense vectors. The FAISS researchers describe different index choices
+          and their speed, memory and retrieval-quality trade-offs. <sup class="ref-cite"><a href="#ref-6"
+              aria-label="Go to reference 6">[6]</a></sup> A highly ranked neighbour is mathematically close under the
+          selected embedding and distance setup; that alone does not prove its relevance to the user's intent.</p>
+        <p>My retrieval pipeline first gathers more candidates than it will send to the language model. In the code, the
+          candidate count is calculated as:</p>
         <pre class="code-panel"><code># Excerpt of the candidate-pool rule used in retrieval
 candidate_count = max(top_k * 5, 50)</code></pre>
-        <p>From that pool, <strong>Maximal Marginal Relevance (MMR)</strong> selects reviews that balance relevance to the question with diversity from those already chosen. By default, the application selects eight reviews for the final context. This relevance-versus-redundancy objective comes from Carbonell and Goldstein's 1998 SIGIR work on diversity-based reranking. <sup class="ref-cite"><a href="#ref-7" aria-label="Go to reference 7">[7]</a></sup></p>
-        <p>Why does this matter? In my manual exploration, several highly similar reviews could repeat essentially the same complaint. MMR was a reasonable way to try to reduce that repetition, without training another model. But I have <strong>not</strong> published a quantitative MMR-versus-top-k benchmark for this prototype. And diversity in retrieved examples must not be confused with statistical representativeness across all customers.</p>
-        <p>The selected reviews, along with their rating and similarity information, are available through an expandable <strong>Retrieved Sources</strong> panel in Streamlit. A reader can therefore inspect what supported the response instead of accepting a polished answer on trust.</p>
+        <p>From that pool, <strong>Maximal Marginal Relevance (MMR)</strong> selects reviews that balance relevance to
+          the question with diversity from those already chosen. By default, the application selects eight reviews for
+          the final context. This relevance-versus-redundancy objective comes from Carbonell and Goldstein's 1998 SIGIR
+          work on diversity-based reranking. <sup class="ref-cite"><a href="#ref-7"
+              aria-label="Go to reference 7">[7]</a></sup></p>
+        <p>Why does this matter? In my manual exploration, several highly similar reviews could repeat essentially the
+          same complaint. MMR was a reasonable way to try to reduce that repetition, without training another model. But
+          I have <strong>not</strong> published a quantitative MMR-versus-top-k benchmark for this prototype. And
+          diversity in retrieved examples must not be confused with statistical representativeness across all customers.
+        </p>
+        <p>The selected reviews, along with their rating and similarity information, are available through an expandable
+          <strong>Retrieved Sources</strong> panel in Streamlit. A reader can therefore inspect what supported the
+          response instead of accepting a polished answer on trust.</p>
         <figure>
-          <img src="assets/ecommerce-sql.png" alt="Streamlit assistant answering a shipping question using order-status metrics" loading="lazy" width="1000" height="562">
-          <figcaption>Figure 1. A shipping question answered with structured database metrics. Source: project screenshot.</figcaption>
+          <img src="assets/ecommerce-sql.png"
+            alt="Streamlit assistant answering a shipping question using order-status metrics" loading="lazy"
+            width="1000" height="562">
+          <figcaption>Figure 1. A shipping question answered with structured database metrics. Source: project
+            screenshot.</figcaption>
         </figure>
         <figure>
-          <img src="assets/ecommerce-rag.png" alt="Streamlit assistant summarising retrieved shipping reviews and showing the retrieved sources panel" loading="lazy" width="1000" height="562">
-          <figcaption>Figure 2. Qualitative review evidence and the expandable Retrieved Sources panel. Source: project screenshot.</figcaption>
+          <img src="assets/ecommerce-rag.png"
+            alt="Streamlit assistant summarising retrieved shipping reviews and showing the retrieved sources panel"
+            loading="lazy" width="1000" height="562">
+          <figcaption>Figure 2. Qualitative review evidence and the expandable Retrieved Sources panel. Source: project
+            screenshot.</figcaption>
         </figure>
 
         <h2 id="iterations">Two problems that changed my approach</h2>
         <h3>1. Generating embeddings at scale</h3>
-        <p>I initially explored using Gemini's embedding API, but free-tier rate limits made the full review corpus impractical to process that way. I switched to local multilingual embeddings. That removed API-rate restrictions and per-request charges from the embedding step, while keeping Gemini for tool selection and response generation.</p>
+        <p>I initially explored using Gemini's embedding API, but free-tier rate limits made the full review corpus
+          impractical to process that way. I switched to local multilingual embeddings. That removed API-rate
+          restrictions and per-request charges from the embedding step, while keeping Gemini for tool selection and
+          response generation.</p>
         <h3>2. A relevant review does not guarantee a grounded answer</h3>
-        <p>During manual testing, I noticed that the model could retrieve appropriate reviews and still add plausible details that weren't present in them—for example, a specific product-defect description that the evidence did not support.</p>
-        <p>I strengthened the system instructions so that the assistant distinguishes database facts from review observations, avoids unsupported claims like “most customers,” and acknowledges when the available evidence is insufficient.</p>
-        <div class="quote-card">The most important lesson: retrieving the right document is not the same thing as generating a trustworthy answer from it.</div>
-        <p>Those prompting rules are a mitigation, not a guarantee. They still need systematic evaluation against known answers and source evidence. A related caution comes from Liu and colleagues (TACL 2024): in their long-context experiments, language-model performance varied with the placement of relevant information. <sup class="ref-cite"><a href="#ref-8" aria-label="Go to reference 8">[8]</a></sup> That study did <em>not</em> test my assistant, but it reinforces why supplying more context should not be treated as automatic assurance that a model will use it correctly.</p>
+        <p>During manual testing, I noticed that the model could retrieve appropriate reviews and still add plausible
+          details that weren't present in them—for example, a specific product-defect description that the evidence did
+          not support.</p>
+        <p>I strengthened the system instructions so that the assistant distinguishes database facts from review
+          observations, avoids unsupported claims like “most customers,” and acknowledges when the available evidence is
+          insufficient.</p>
+        <div class="quote-card">The most important lesson: retrieving the right document is not the same thing as
+          generating a trustworthy answer from it.</div>
+        <p>Those prompting rules are a mitigation, not a guarantee. They still need systematic evaluation against known
+          answers and source evidence. A related caution comes from Liu and colleagues (TACL 2024): in their
+          long-context experiments, language-model performance varied with the placement of relevant information. <sup
+            class="ref-cite"><a href="#ref-8" aria-label="Go to reference 8">[8]</a></sup> That study did <em>not</em>
+          test my assistant, but it reinforces why supplying more context should not be treated as automatic assurance
+          that a model will use it correctly.</p>
 
         <h2 id="limitations">What the prototype cannot claim</h2>
-        <p>This project can answer supported quantitative questions through its implemented SQL tools and retrieve relevant customer experiences for qualitative questions. But review search returns a <strong>selected sample</strong>, not a census of customer opinions.</p>
-        <p>For example, several retrieved reviews mentioning late deliveries justify saying “some retrieved reviews describe delays.” They do <em>not</em> justify concluding that delivery delay is the most common complaint across all customers.</p>
-        <div class="note mb-4"><strong>Current limitations:</strong> The source reviews are primarily in Portuguese; answer groundedness has been checked manually rather than through a comprehensive automated evaluation suite; and the application has not demonstrated a measurable improvement in business decisions.</div>
-        <p>There's also a useful distinction between retrieval <em>diversity</em> and retrieval <em>quality</em>. MMR helped with redundant results in this prototype. If relevance becomes the bottleneck, I would evaluate a reranker rather than adding complexity without a demonstrated need.</p>
+        <p>This project can answer supported quantitative questions through its implemented SQL tools and retrieve
+          relevant customer experiences for qualitative questions. But review search returns a <strong>selected
+            sample</strong>, not a census of customer opinions.</p>
+        <p>For example, several retrieved reviews mentioning late deliveries justify saying “some retrieved reviews
+          describe delays.” They do <em>not</em> justify concluding that delivery delay is the most common complaint
+          across all customers.</p>
+        <div class="note"><strong>Current limitations:</strong> The source reviews are primarily in Portuguese; answer
+          groundedness has been checked manually rather than through a comprehensive automated evaluation suite; and the
+          application has not demonstrated a measurable improvement in business decisions.</div>
+        <p>There's also a useful distinction between retrieval <em>diversity</em> and retrieval <em>quality</em>. MMR
+          helped with redundant results in this prototype. If relevance becomes the bottleneck, I would evaluate a
+          reranker rather than adding complexity without a demonstrated need.</p>
 
         <h2 id="research-design">What the research supports—and what it doesn't</h2>
-        <p>I found it useful to separate <strong>established findings from the literature</strong>, <strong>my engineering choices</strong> and <strong>outcomes still requiring evaluation</strong>. Here is the distinction I want to preserve:</p>
-        <div class="table-responsive rounded-3 border mb-4">
-          <table class="table table-bordered research-map mb-0">
-            <thead><tr><th scope="col">Published finding or documented capability</th><th scope="col">How it informed my design</th><th scope="col">What remains unproven here</th></tr></thead>
+        <p>I found it useful to separate <strong>established findings from the literature</strong>, <strong>my
+            engineering choices</strong> and <strong>outcomes still requiring evaluation</strong>. Here is the
+          distinction I want to preserve:</p>
+        <div class="table-wrap">
+          <table class="research-map">
+            <thead>
+              <tr>
+                <th scope="col">Published finding or documented capability</th>
+                <th scope="col">How it informed my design</th>
+                <th scope="col">What remains unproven here</th>
+              </tr>
+            </thead>
             <tbody>
-              <tr><td>Retrieval can provide external evidence to language generation <sup class="ref-cite"><a href="#ref-4" aria-label="Go to reference 4">[4]</a></sup></td><td>Retrieve reviews for qualitative questions</td><td>That every generated claim is supported</td></tr>
-              <tr><td>MMR balances query relevance with novelty <sup class="ref-cite"><a href="#ref-7" aria-label="Go to reference 7">[7]</a></sup></td><td>Reduce duplicate complaints in the review context</td><td>Higher measured retrieval quality or a representative sample</td></tr>
-              <tr><td>RAG evaluation should assess retrieval and answer faithfulness separately <sup class="ref-cite"><a href="#ref-9" aria-label="Go to reference 9">[9]</a></sup></td><td>Plan source-based tests and numerical checks</td><td>Any benchmark score or production impact</td></tr>
+              <tr>
+                <td>Retrieval can provide external evidence to language generation <sup class="ref-cite"><a
+                      href="#ref-4" aria-label="Go to reference 4">[4]</a></sup></td>
+                <td>Retrieve reviews for qualitative questions</td>
+                <td>That every generated claim is supported</td>
+              </tr>
+              <tr>
+                <td>MMR balances query relevance with novelty <sup class="ref-cite"><a href="#ref-7"
+                      aria-label="Go to reference 7">[7]</a></sup></td>
+                <td>Reduce duplicate complaints in the review context</td>
+                <td>Higher measured retrieval quality or a representative sample</td>
+              </tr>
+              <tr>
+                <td>RAG evaluation should assess retrieval and answer faithfulness separately <sup class="ref-cite"><a
+                      href="#ref-9" aria-label="Go to reference 9">[9]</a></sup></td>
+                <td>Plan source-based tests and numerical checks</td>
+                <td>Any benchmark score or production impact</td>
+              </tr>
             </tbody>
           </table>
         </div>
         <div class="research-panel">
           <h3>My takeaway from reading the papers</h3>
-          <p><strong>A citation explains why a design is plausible; it does not certify that my implementation works.</strong> The right next step is a reproducible test set and transparent reporting of both successes and failures, not borrowing performance claims from someone else's experiments.</p>
+          <p><strong>A citation explains why a design is plausible; it does not certify that my implementation
+              works.</strong> The right next step is a reproducible test set and transparent reporting of both successes
+            and failures, not borrowing performance claims from someone else's experiments.</p>
         </div>
 
         <h2 id="lessons">What I learned</h2>
         <ul>
-          <li><strong>Choose the evidence source before explaining the answer.</strong> Exact metrics and customer experiences should not be handled as if they are interchangeable.</li>
-          <li><strong>Tool design is part of reliability.</strong> Predefined, inspectable SQL routines give the application a clearer boundary than invented figures.</li>
-          <li><strong>Retrieval is a design problem.</strong> A useful evidence set needs relevance and enough variety to avoid repeatedly showing the same story.</li>
-          <li><strong>Trust requires visible limitations.</strong> Transparent sources and careful wording are more important than confident-sounding summaries.</li>
+          <li><strong>Choose the evidence source before explaining the answer.</strong> Exact metrics and customer
+            experiences should not be handled as if they are interchangeable.</li>
+          <li><strong>Tool design is part of reliability.</strong> Predefined, inspectable SQL routines give the
+            application a clearer boundary than invented figures.</li>
+          <li><strong>Retrieval is a design problem.</strong> A useful evidence set needs relevance and enough variety
+            to avoid repeatedly showing the same story.</li>
+          <li><strong>Trust requires visible limitations.</strong> Transparent sources and careful wording are more
+            important than confident-sounding summaries.</li>
         </ul>
-        <p>As I continue my MSc in Artificial Intelligence and Data Science, this project has reinforced something I want to carry into future ML and AI work: building an application that can produce an answer is only the beginning. The harder question is how to verify what supports it.</p>
+        <p>As I continue my MSc in Artificial Intelligence and Data Science, this project has reinforced something I
+          want to carry into future ML and AI work: building an application that can produce an answer is only the
+          beginning. The harder question is how to verify what supports it.</p>
 
         <h2 id="next">Where I would take it next</h2>
-        <p>My next steps would focus on evaluation rather than adding more features. I'd build an annotated test set with expected tool choices, expected numerical results for SQL questions, and supporting review passages for qualitative questions. I would track tool-selection accuracy, retrieval relevance, answer faithfulness to the retrieved sources and unsupported-claim frequency. <strong>These are proposed evaluations, not results I have already measured.</strong></p>
-        <p>Es and colleagues introduced <em>RAGAs</em> at EACL 2024 to evaluate RAG pipelines across retrieval and generation dimensions, including how faithfully an answer uses retrieved context. <sup class="ref-cite"><a href="#ref-9" aria-label="Go to reference 9">[9]</a></sup> Its framework is useful inspiration for an evaluation plan, but the current version of my project does not claim to implement RAGAs or achieve any RAGAs scores.</p>
-        <p>I'd also explore extracting and counting complaint themes across the full review corpus. That would create a better basis for genuinely quantitative customer-feedback questions, instead of asking a semantic sample to support population-level claims.</p>
-        <p>For me, E-Commerce AI Assistant is a working prototype—and a reminder that <strong>useful AI combines the right data, the right tools, and the discipline to say what the evidence cannot tell us.</strong></p>
+        <p>My next steps would focus on evaluation rather than adding more features. I'd build an annotated test set
+          with expected tool choices, expected numerical results for SQL questions, and supporting review passages for
+          qualitative questions. I would track tool-selection accuracy, retrieval relevance, answer faithfulness to the
+          retrieved sources and unsupported-claim frequency. <strong>These are proposed evaluations, not results I have
+            already measured.</strong></p>
+        <p>Es and colleagues introduced <em>RAGAs</em> at EACL 2024 to evaluate RAG pipelines across retrieval and
+          generation dimensions, including how faithfully an answer uses retrieved context. <sup class="ref-cite"><a
+              href="#ref-9" aria-label="Go to reference 9">[9]</a></sup> Its framework is useful inspiration for an
+          evaluation plan, but the current version of my project does not claim to implement RAGAs or achieve any RAGAs
+          scores.</p>
+        <p>I'd also explore extracting and counting complaint themes across the full review corpus. That would create a
+          better basis for genuinely quantitative customer-feedback questions, instead of asking a semantic sample to
+          support population-level claims.</p>
+        <p>For me, E-Commerce AI Assistant is a working prototype—and a reminder that <strong>useful AI combines the
+            right data, the right tools, and the discipline to say what the evidence cannot tell us.</strong></p>
 
-        <div class="rounded-4 border bg-white p-4 p-md-5 mt-5">
-          <h2 class="h4 fw-bold mt-0 mb-3">Explore the project</h2>
-          <p class="text-secondary">The repository contains the Streamlit application, DuckDB analytics tools, RAG pipeline, source-code documentation and screenshots.</p>
-          <div class="d-flex flex-wrap gap-2">
-            <a class="btn btn-primary" href="https://github.com/Rahul5021/ecommerce-ai-assistant" target="_blank" rel="noopener noreferrer">View the code on GitHub &nearr;</a>
-            <a class="btn btn-outline-primary" href="index.html">More writing &rarr;</a>
+        <div class="cta">
+          <h2>Explore the project</h2>
+          <p>The repository contains the Streamlit application, DuckDB analytics tools, RAG pipeline, source-code
+            documentation and screenshots.</p>
+          <div class="btns">
+            <a class="btn btn-primary" href="https://github.com/Rahul5021/ecommerce-ai-assistant" target="_blank"
+              rel="noopener noreferrer">View the code on GitHub &nearr;</a>
+            <a class="btn btn-outline" href="index.html">More writing &rarr;</a>
           </div>
         </div>
-        <h2 id="references">References and further reading</h2>
-        <p class="references-intro">The links below lead to the original dataset listing, peer-reviewed publications, the FAISS research preprint and official vendor documentation. They support the specific background statements marked in this article. None of these external sources independently tests or validates my E-Commerce AI Assistant implementation; for that, see the linked project repository.</p>
-        <ol class="reference-list">
-          <li id="ref-1"><strong>Olist.</strong> <em>Brazilian E-Commerce Public Dataset by Olist</em>. Original dataset listing, Kaggle. <a href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce" target="_blank" rel="noopener noreferrer">View original dataset</a>.<span class="source-type">Dataset publisher · Used for the corpus provenance and dataset scope</span></li>
-          <li id="ref-2"><strong>DuckDB.</strong> <em>Executing SQL in Python</em>. Official documentation. <a href="https://duckdb.org/docs/current/guides/python/execute_sql" target="_blank" rel="noopener noreferrer">Read documentation</a>.<span class="source-type">Official documentation · SQL execution and fetching results in Python</span></li>
-          <li id="ref-3"><strong>Google AI for Developers.</strong> <em>Using tools with Gemini API</em>. Official API documentation. <a href="https://ai.google.dev/gemini-api/docs/tools" target="_blank" rel="noopener noreferrer">Read documentation</a>.<span class="source-type">Official documentation · Model requests a tool; application executes custom tools</span></li>
-          <li id="ref-4"><strong>Lewis, P., et al. (2020).</strong> <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em>. Advances in Neural Information Processing Systems 33 (NeurIPS 2020). <a href="https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html" target="_blank" rel="noopener noreferrer">Read published paper</a>.<span class="source-type">Peer-reviewed conference paper · Retrieval-based external context for generation</span></li>
-          <li id="ref-5"><strong>Reimers, N., &amp; Gurevych, I. (2019).</strong> <em>Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks</em>. EMNLP-IJCNLP 2019, pp. 3982–3992. DOI: <a href="https://doi.org/10.18653/v1/D19-1410" target="_blank" rel="noopener noreferrer">10.18653/v1/D19-1410</a>.<span class="source-type">Peer-reviewed conference paper · Semantically meaningful sentence embeddings; not a benchmark of this project's specific multilingual model</span></li>
-          <li id="ref-6"><strong>Douze, M., et al. (2024; revised 2025).</strong> <em>The Faiss library</em>. arXiv:2401.08281. <a href="https://arxiv.org/abs/2401.08281" target="_blank" rel="noopener noreferrer">Read FAISS research preprint</a>.<span class="source-type">Research preprint · Vector-search indexing choices and trade-offs; not described here as peer-reviewed</span></li>
-          <li id="ref-7"><strong>Carbonell, J., &amp; Goldstein, J. (1998).</strong> <em>The use of MMR, diversity-based reranking for reordering documents and producing summaries</em>. Proceedings of the 21st Annual International ACM SIGIR Conference, pp. 335–336. DOI: <a href="https://doi.org/10.1145/290941.291025" target="_blank" rel="noopener noreferrer">10.1145/290941.291025</a>.<span class="source-type">Peer-reviewed conference paper · Relevance/diversity balancing through MMR</span></li>
-          <li id="ref-8"><strong>Liu, N. F., et al. (2024).</strong> <em>Lost in the Middle: How Language Models Use Long Contexts</em>. Transactions of the Association for Computational Linguistics, 12, pp. 157–173. DOI: <a href="https://doi.org/10.1162/tacl_a_00638" target="_blank" rel="noopener noreferrer">10.1162/tacl_a_00638</a>.<span class="source-type">Peer-reviewed journal article · Relevant-context position can affect model performance in studied tasks</span></li>
-          <li id="ref-9"><strong>Es, S., James, J., Espinosa Anke, L., &amp; Schockaert, S. (2024).</strong> <em>RAGAs: Automated Evaluation of Retrieval Augmented Generation</em>. EACL 2024 System Demonstrations, pp. 150–158. DOI: <a href="https://doi.org/10.18653/v1/2024.eacl-demo.16" target="_blank" rel="noopener noreferrer">10.18653/v1/2024.eacl-demo.16</a>.<span class="source-type">Peer-reviewed conference demonstration paper · Separating retrieval quality from answer faithfulness</span></li>
-        </ol>
-        <p class="text-secondary small">Project-specific architecture, observations and limitations are based on the <a href="https://github.com/Rahul5021/ecommerce-ai-assistant" target="_blank" rel="noopener noreferrer">public E-Commerce AI Assistant repository</a>, not independent findings from the cited papers.</p>
 
-        <p class="mt-4 mb-0"><strong>Want to discuss this approach?</strong> I'd be interested to hear how you evaluate evidence grounding in RAG applications. <a href="https://www.linkedin.com/in/agrawalrahul1025/" target="_blank" rel="noopener noreferrer">Connect with me on LinkedIn</a>.</p>
+        <h2 id="references">References and further reading</h2>
+        <p class="references-intro">The links below lead to the original dataset listing, peer-reviewed publications,
+          the FAISS research preprint and official vendor documentation. They support the specific background statements
+          marked in this article. None of these external sources independently tests or validates my E-Commerce AI
+          Assistant implementation; for that, see the linked project repository.</p>
+        <ol class="reference-list">
+          <li id="ref-1"><strong>Olist.</strong> <em>Brazilian E-Commerce Public Dataset by Olist</em>. Original dataset
+            listing, Kaggle. <a href="https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce" target="_blank"
+              rel="noopener noreferrer">View original dataset</a>.<span class="source-type">Dataset publisher · Used for
+              the corpus provenance and dataset scope</span></li>
+          <li id="ref-2"><strong>DuckDB.</strong> <em>Executing SQL in Python</em>. Official documentation. <a
+              href="https://duckdb.org/docs/current/guides/python/execute_sql" target="_blank"
+              rel="noopener noreferrer">Read documentation</a>.<span class="source-type">Official documentation · SQL
+              execution and fetching results in Python</span></li>
+          <li id="ref-3"><strong>Google AI for Developers.</strong> <em>Using tools with Gemini API</em>. Official API
+            documentation. <a href="https://ai.google.dev/gemini-api/docs/tools" target="_blank"
+              rel="noopener noreferrer">Read documentation</a>.<span class="source-type">Official documentation · Model
+              requests a tool; application executes custom tools</span></li>
+          <li id="ref-4"><strong>Lewis, P., et al. (2020).</strong> <em>Retrieval-Augmented Generation for
+              Knowledge-Intensive NLP Tasks</em>. Advances in Neural Information Processing Systems 33 (NeurIPS 2020).
+            <a href="https://proceedings.neurips.cc/paper/2020/hash/6b493230205f780e1bc26945df7481e5-Abstract.html"
+              target="_blank" rel="noopener noreferrer">Read published paper</a>.<span class="source-type">Peer-reviewed
+              conference paper · Retrieval-based external context for generation</span></li>
+          <li id="ref-5"><strong>Reimers, N., &amp; Gurevych, I. (2019).</strong> <em>Sentence-BERT: Sentence Embeddings
+              using Siamese BERT-Networks</em>. EMNLP-IJCNLP 2019, pp. 3982–3992. DOI: <a
+              href="https://doi.org/10.18653/v1/D19-1410" target="_blank"
+              rel="noopener noreferrer">10.18653/v1/D19-1410</a>.<span class="source-type">Peer-reviewed conference
+              paper · Semantically meaningful sentence embeddings; not a benchmark of this project's specific
+              multilingual model</span></li>
+          <li id="ref-6"><strong>Douze, M., et al. (2024; revised 2025).</strong> <em>The Faiss library</em>.
+            arXiv:2401.08281. <a href="https://arxiv.org/abs/2401.08281" target="_blank" rel="noopener noreferrer">Read
+              FAISS research preprint</a>.<span class="source-type">Research preprint · Vector-search indexing choices
+              and trade-offs; not described here as peer-reviewed</span></li>
+          <li id="ref-7"><strong>Carbonell, J., &amp; Goldstein, J. (1998).</strong> <em>The use of MMR, diversity-based
+              reranking for reordering documents and producing summaries</em>. Proceedings of the 21st Annual
+            International ACM SIGIR Conference, pp. 335–336. DOI: <a href="https://doi.org/10.1145/290941.291025"
+              target="_blank" rel="noopener noreferrer">10.1145/290941.291025</a>.<span
+              class="source-type">Peer-reviewed conference paper · Relevance/diversity balancing through MMR</span></li>
+          <li id="ref-8"><strong>Liu, N. F., et al. (2024).</strong> <em>Lost in the Middle: How Language Models Use
+              Long Contexts</em>. Transactions of the Association for Computational Linguistics, 12, pp. 157–173. DOI:
+            <a href="https://doi.org/10.1162/tacl_a_00638" target="_blank"
+              rel="noopener noreferrer">10.1162/tacl_a_00638</a>.<span class="source-type">Peer-reviewed journal article
+              · Relevant-context position can affect model performance in studied tasks</span></li>
+          <li id="ref-9"><strong>Es, S., James, J., Espinosa Anke, L., &amp; Schockaert, S. (2024).</strong> <em>RAGAs:
+              Automated Evaluation of Retrieval Augmented Generation</em>. EACL 2024 System Demonstrations, pp. 150–158.
+            DOI: <a href="https://doi.org/10.18653/v1/2024.eacl-demo.16" target="_blank"
+              rel="noopener noreferrer">10.18653/v1/2024.eacl-demo.16</a>.<span class="source-type">Peer-reviewed
+              conference demonstration paper · Separating retrieval quality from answer faithfulness</span></li>
+        </ol>
+        <p class="small-note">Project-specific architecture, observations and limitations are based on the <a
+            href="https://github.com/Rahul5021/ecommerce-ai-assistant" target="_blank" rel="noopener noreferrer">public
+            E-Commerce AI Assistant repository</a>, not independent findings from the cited papers.</p>
+
+        <p><strong>Want to discuss this approach?</strong> I'd be interested to hear how you evaluate evidence grounding
+          in RAG applications. <a href="https://www.linkedin.com/in/agrawalrahul1025/" target="_blank"
+            rel="noopener noreferrer">Connect with me on LinkedIn</a>.</p>
       </div>
     </article>
   </main>
-  <footer class="border-top bg-white py-4 mt-5">
-    <div class="container blog-container d-flex flex-column flex-md-row justify-content-between gap-2">
-      <span class="text-secondary small">&copy; 2026 Rahul Agrawal</span>
-      <div class="d-flex flex-wrap gap-3">
-        <a class="foot-link small" href="index.html">All articles</a>
-        <a class="foot-link small" href="../index.html">Back to portfolio &rarr;</a>
+
+  <footer class="site-footer">
+    <div class="wrap">
+      <span>&copy; 2026 Rahul Agrawal</span>
+      <div class="links">
+        <a href="index.html">All articles</a>
+        <a href="../index.html">Back to portfolio &rarr;</a>
       </div>
     </div>
   </footer>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
+
 </html>

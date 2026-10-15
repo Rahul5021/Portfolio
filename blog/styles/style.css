@@ -1,0 +1,719 @@
+/* ==========================================================
+   Blog stylesheet: shared by the landing page and all articles
+   ========================================================== */
+
+/* ---------- Design tokens ---------- */
+:root {
+    --bg: #fbfbf9;
+    --surface: #fff;
+    --ink: #172333;
+    --muted: #5b6676;
+    --line: #e3e5e8;
+    --accent: #1d4ed8;
+    --tint: #eef3fd;
+    --tint-line: #cbdcf7;
+    --navy: #0b1b30;
+    --serif: Charter, "Iowan Old Style", "Palatino Linotype", Georgia, serif;
+    --sans: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+/* ---------- Base ---------- */
+* {
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+a {
+    color: var(--accent);
+    text-underline-offset: 3px;
+}
+
+a:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+    border-radius: 2px;
+}
+
+.wrap {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 24px;
+}
+
+.prose {
+    max-width: 700px;
+    margin-inline: auto;
+}
+
+.visually-hidden {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+}
+
+/* ---------- Header and footer ---------- */
+.site-header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--line);
+}
+
+.site-header .wrap {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    height: 64px;
+}
+
+.brand {
+    font-family: var(--serif);
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.site-nav {
+    display: flex;
+    gap: 24px;
+    font-size: .95rem;
+}
+
+.site-nav a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 4px 0;
+    border-bottom: 2px solid transparent;
+}
+
+.site-nav a:hover {
+    color: var(--ink);
+}
+
+.site-nav a[aria-current="page"] {
+    color: var(--ink);
+    font-weight: 600;
+    border-bottom-color: var(--accent);
+}
+
+.site-footer {
+    margin-top: 72px;
+    border-top: 1px solid var(--line);
+    background: var(--surface);
+    padding: 28px 0;
+    font-size: .9rem;
+    color: var(--muted);
+}
+
+.site-footer .wrap {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.site-footer a {
+    text-decoration: none;
+}
+
+.site-footer .links {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* ---------- Shared components ---------- */
+.tags {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 18px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tags li {
+    font-size: .8rem;
+    color: var(--muted);
+    background: #f0f1f3;
+    border-radius: 999px;
+    padding: 2px 12px;
+}
+
+.btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.btn {
+    display: inline-block;
+    padding: 9px 18px;
+    border-radius: 8px;
+    border: 1px solid var(--accent);
+    font-weight: 600;
+    font-size: .95rem;
+    text-decoration: none;
+}
+
+.btn-primary {
+    background: var(--accent);
+    color: #fff;
+}
+
+.btn-primary:hover {
+    background: #1a43b3;
+}
+
+.btn-outline {
+    color: var(--accent);
+    background: transparent;
+}
+
+.btn-outline:hover {
+    background: var(--tint);
+}
+
+/* ==========================================================
+   Landing page
+   ========================================================== */
+.intro {
+    padding: 72px 0 48px;
+}
+
+.intro h1 {
+    font-family: var(--serif);
+    font-size: clamp(2.25rem, 5vw, 3.25rem);
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+    margin: 0 0 20px;
+}
+
+.intro p {
+    max-width: 62ch;
+    margin: 0 0 12px;
+    color: var(--muted);
+    font-size: 1.1rem;
+}
+
+.section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    border-bottom: 1px solid var(--ink);
+    padding-bottom: 12px;
+}
+
+.section-head h2 {
+    font-family: var(--serif);
+    font-size: 1.35rem;
+    margin: 0;
+}
+
+.section-head span {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+.post {
+    display: grid;
+    grid-template-columns: 170px 1fr;
+    gap: 32px;
+    padding: 36px 0;
+    border-bottom: 1px solid var(--line);
+}
+
+.post-meta {
+    font-size: .9rem;
+    color: var(--muted);
+}
+
+.post-type {
+    display: block;
+    font-weight: 600;
+    color: var(--ink);
+    margin-bottom: 4px;
+}
+
+.post h3 {
+    font-family: var(--serif);
+    font-size: 1.6rem;
+    line-height: 1.25;
+    letter-spacing: -0.01em;
+    margin: 0 0 12px;
+}
+
+.post h3 a {
+    color: var(--ink);
+    text-decoration: none;
+}
+
+.post h3 a:hover {
+    color: var(--accent);
+}
+
+.post p {
+    margin: 0 0 16px;
+    color: var(--muted);
+    max-width: 62ch;
+}
+
+.read-link {
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.read-link:hover {
+    text-decoration: underline;
+    text-underline-offset: 3px;
+}
+
+/* ==========================================================
+   Article pages
+   ========================================================== */
+.article-head {
+    padding: 48px 0 0;
+}
+
+.back {
+    font-size: .92rem;
+    text-decoration: none;
+}
+
+.back:hover {
+    text-decoration: underline;
+}
+
+.kind {
+    margin: 28px 0 12px;
+    font-size: .92rem;
+    font-weight: 600;
+    color: var(--muted);
+}
+
+.article-title {
+    font-family: var(--serif);
+    font-size: clamp(2rem, 4.6vw, 3rem);
+    line-height: 1.15;
+    letter-spacing: -.02em;
+    font-weight: 700;
+    margin: 0 0 20px;
+}
+
+.article-subtitle {
+    font-size: clamp(1.08rem, 2vw, 1.25rem);
+    line-height: 1.6;
+    color: var(--muted);
+    margin: 0 0 28px;
+}
+
+.byline {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 8px 24px;
+    padding: 16px 0;
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    font-size: .93rem;
+    color: var(--muted);
+}
+
+.byline strong {
+    color: var(--ink);
+}
+
+.hero-cover {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin: 32px 0 20px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.article-head~.prose .tags,
+.prose>.tags {
+    margin-bottom: 28px;
+}
+
+.contents {
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 24px;
+    margin-bottom: 8px;
+}
+
+.contents h2 {
+    font-family: var(--serif);
+    font-size: 1.05rem;
+    margin: 0 0 8px;
+}
+
+.contents ol {
+    margin: 0;
+    padding-left: 1.2rem;
+    columns: 2;
+    column-gap: 32px;
+    font-size: .93rem;
+}
+
+.contents li {
+    padding: 2px 0;
+    break-inside: avoid;
+}
+
+.contents a {
+    text-decoration: none;
+}
+
+.contents a:hover {
+    text-decoration: underline;
+}
+
+/* Article body */
+.article-body {
+    font-family: var(--serif);
+    font-size: 1.12rem;
+    line-height: 1.8;
+}
+
+.article-body p {
+    margin: 0 0 1.35rem;
+}
+
+.article-body h2 {
+    font-size: clamp(1.5rem, 2.6vw, 1.85rem);
+    line-height: 1.25;
+    letter-spacing: -.01em;
+    font-weight: 700;
+    margin: 3rem 0 1rem;
+    scroll-margin-top: 24px;
+}
+
+.article-body h3 {
+    font-size: 1.22rem;
+    font-weight: 700;
+    margin: 2rem 0 .7rem;
+}
+
+.article-body ul {
+    padding-left: 1.4rem;
+    margin: 0 0 1.35rem;
+}
+
+.article-body li {
+    padding-bottom: .4rem;
+}
+
+.article-body code {
+    font-size: .9em;
+    background: #f0f1f3;
+    padding: 1px 6px;
+    border-radius: 4px;
+}
+
+.article-body figure {
+    margin: 2.2rem 0;
+}
+
+.article-body figure img {
+    display: block;
+    width: 100%;
+    height: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+}
+
+.article-body figcaption {
+    font-family: var(--sans);
+    text-align: center;
+    color: var(--muted);
+    font-size: .88rem;
+    line-height: 1.55;
+    margin-top: .7rem;
+}
+
+/* Callouts */
+.quote-card {
+    border-left: 3px solid var(--accent);
+    background: var(--tint);
+    padding: 1.1rem 1.4rem;
+    border-radius: 0 8px 8px 0;
+    margin: 2rem 0;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.note,
+.research-panel {
+    font-family: var(--sans);
+    border: 1px solid var(--line);
+    background: var(--surface);
+    border-radius: 10px;
+    padding: 1.1rem 1.3rem;
+    font-size: .97rem;
+    line-height: 1.65;
+    margin: 0 0 1.5rem;
+}
+
+.research-panel {
+    border-color: var(--tint-line);
+    background: var(--tint);
+    margin: 2rem 0;
+}
+
+.research-panel h3 {
+    margin: 0 0 .5rem;
+    font-size: 1.05rem;
+}
+
+.research-panel p:last-child {
+    margin-bottom: 0;
+}
+
+.code-panel {
+    border-radius: 10px;
+    background: var(--navy);
+    color: #f0f7ff;
+    padding: 1.2rem 1.4rem;
+    font-size: .9rem;
+    overflow-x: auto;
+    line-height: 1.65;
+    margin: 0 0 1.5rem;
+}
+
+.code-panel code {
+    background: none;
+    padding: 0;
+    font-size: inherit;
+}
+
+/* Tables */
+.table-wrap {
+    overflow-x: auto;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    background: var(--surface);
+    margin: 0 0 1.6rem;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: var(--sans);
+    font-size: .93rem;
+    line-height: 1.5;
+}
+
+th,
+td {
+    text-align: left;
+    vertical-align: top;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--line);
+}
+
+th {
+    background: #f3f5f8;
+    color: var(--ink);
+    font-weight: 600;
+}
+
+tr:last-child td {
+    border-bottom: 0;
+}
+
+.article-table {
+    min-width: 460px;
+}
+
+.research-map {
+    min-width: 600px;
+}
+
+/* Architecture diagram */
+.architecture {
+    font-family: var(--sans);
+    background: var(--navy);
+    border-radius: 12px;
+    padding: clamp(1.1rem, 3vw, 1.8rem);
+    margin: 2.2rem 0;
+    color: #fff;
+    line-height: 1.5;
+}
+
+.architecture .centerbox {
+    background: #123456;
+    border: 1px solid #4f83ac;
+    border-radius: 10px;
+    padding: .8rem 1rem;
+    text-align: center;
+}
+
+.architecture .routes {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+}
+
+.architecture .pathbox {
+    background: #132a48;
+    border: 1px solid #315272;
+    border-radius: 10px;
+    padding: 1rem;
+}
+
+.architecture .route-title {
+    font-weight: 700;
+    font-size: .94rem;
+    color: #d7f0ff;
+}
+
+.architecture .route-desc {
+    font-size: .8rem;
+    color: #b6cbde;
+    margin-top: .4rem;
+}
+
+.architecture .connector {
+    color: #91d9f9;
+    text-align: center;
+    font-weight: 700;
+    font-size: 1.3rem;
+    margin: .25rem 0;
+}
+
+.architecture .note-line {
+    color: #abc7df;
+    text-align: center;
+    font-size: .83rem;
+    margin: 1rem 0 0;
+}
+
+/* Citations and references */
+.ref-cite {
+    font-size: .74em;
+    font-weight: 600;
+    margin-left: .1em;
+    white-space: nowrap;
+}
+
+.ref-cite a {
+    text-decoration: none;
+}
+
+.ref-cite a:hover,
+.ref-cite a:focus-visible {
+    text-decoration: underline;
+}
+
+.references-intro {
+    color: var(--muted);
+    font-size: .98rem;
+}
+
+.reference-list {
+    padding-left: 1.5rem;
+    font-size: .95rem;
+    line-height: 1.65;
+}
+
+.reference-list li {
+    padding: 0 0 1rem .25rem;
+    scroll-margin-top: 24px;
+    overflow-wrap: anywhere;
+}
+
+.reference-list li::marker {
+    font-weight: 700;
+    color: var(--accent);
+}
+
+.reference-list a {
+    font-weight: 600;
+}
+
+.reference-list .source-type {
+    color: var(--muted);
+    font-size: .83rem;
+    display: block;
+    margin-top: .2rem;
+    font-family: var(--sans);
+}
+
+.small-note {
+    color: var(--muted);
+    font-size: .9rem;
+}
+
+/* Project call to action */
+.cta {
+    font-family: var(--sans);
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 1.6rem 1.8rem;
+    margin-top: 3rem;
+}
+
+.article-body .cta h2 {
+    font-size: 1.25rem;
+    margin: 0 0 .6rem;
+}
+
+.cta p {
+    color: var(--muted);
+    font-size: 1rem;
+    line-height: 1.65;
+    margin: 0 0 1rem;
+}
+
+/* ---------- Small screens ---------- */
+@media (max-width: 640px) {
+    .intro {
+        padding: 48px 0 32px;
+    }
+
+    .post {
+        grid-template-columns: 1fr;
+        gap: 12px;
+        padding: 28px 0;
+    }
+
+    .post-meta {
+        order: -1;
+    }
+
+    .article-head {
+        padding-top: 32px;
+    }
+
+    .article-body {
+        font-size: 1.04rem;
+        line-height: 1.75;
+    }
+
+    .contents ol {
+        columns: 1;
+    }
+
+    .architecture .routes {
+        grid-template-columns: 1fr;
+    }
+}

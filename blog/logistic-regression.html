@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Rahul Agrawal">
+    <meta name="description"
+        content="Explore logistic regression through interactive sigmoid, coefficient, log-loss and decision-threshold experiments, mathematical derivations and research references.">
+    <title>Logistic Regression: From Scores to Decisions | Rahul Agrawal</title>
+    <link rel="canonical" href="https://rahulagrawal.com.np/blog/logistic-regression.html">
+    <meta property="og:type" content="article">
+    <meta property="og:title" content="Logistic Regression: From Scores to Decisions">
+    <meta property="og:description"
+        content="An interactive guide to sigmoid, log-odds, maximum likelihood, regularisation and model evaluation.">
+    <meta property="og:url" content="https://rahulagrawal.com.np/blog/logistic-regression.html">
+    <meta name="twitter:card" content="summary">
+    <link rel="icon" href="../assets/favicon.ico" type="image/x-icon">
+    <!-- Bootstrap provides the experiment grids, form controls and utilities. -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <!-- Keep your shared stylesheet unchanged; article overrides load last. -->
+    <link rel="stylesheet" href="styles/style.css">
+    <link rel="stylesheet" href="styles/logistic.css">
+    <script src="scripts/script.js" defer></script>
+</head>
+
+<body class="logistic-article">
+    <header class="site-header">
+        <div class="wrap">
+            <a class="brand" href="../index.html">Rahul Agrawal</a>
+            <nav class="site-nav" aria-label="Main">
+                <a href="../index.html">Portfolio</a>
+                <a href="index.html" aria-current="page">Writing</a>
+            </nav>
+        </div>
+    </header>
+    <main class="wrap">
+        <article>
+            <header class="article-head prose">
+                <a href="index.html" class="back">← All articles</a>
+                <p class="kind">Interactive technical guide · Machine learning foundations</p>
+                <h1 class="article-title">Logistic Regression: From Scores to Decisions</h1>
+                <p class="article-subtitle">Move a slider. Inspect a probability. Follow the mathematics from a linear
+                    score to a trained classifier, and explore how predictions become decisions.</p>
+                <div class="byline"><span><strong>Rahul Agrawal</strong> · MSc AI &amp; Data Science</span><span>Approx.
+                        20 min read + experiments</span></div>
+            </header>
+            <div class="prose mt-4">
+                <ul class="tags" aria-label="Topics">
+                    <li>Logistic regression</li>
+                    <li>Python</li>
+                    <li>Interactive graphs</li>
+                    <li>Statistical learning</li>
+                </ul>
+                <nav class="contents" aria-labelledby="contents-title">
+                    <h2 id="contents-title">In this article</h2>
+                    <ol>
+                        <li><a href="#model">The modelling question</a></li>
+                        <li><a href="#sigmoid">The sigmoid explorer</a></li>
+                        <li><a href="#odds">Log-odds and coefficients</a></li>
+                        <li><a href="#fit">Maximum likelihood and gradients</a></li>
+                        <li><a href="#loss">Log-loss and regularisation</a></li>
+                        <li><a href="#threshold">Thresholds and evaluation</a></li>
+                        <li><a href="#practice">A reproducible Python workflow</a></li>
+                        <li><a href="#research">A research perspective</a></li>
+                        <li><a href="#references">References and further reading</a></li>
+                    </ol>
+                </nav>
+            </div>
+            <div class="prose article-body">
+                <section id="model" class="mb-5">
+                    <p class="text-primary small fw-bold">01 / THE MODELLING QUESTION</p>
+                    <h2 class="fw-bold">Why does a classifier have “regression” in its name?</h2>
+                    <p>Imagine predicting whether a customer will cancel a subscription in the next month. The observed
+                        outcome is binary: cancellation is 1, retention is 0. But before that month ends, a model should
+                        express uncertainty. A probability of 0.72 is more informative than a bare “yes”: it can support
+                        prioritisation, capacity planning and decisions with different error costs.</p>
+                    <p>Binary logistic regression models the conditional probability <strong>p(x) = P(Y = 1 | X =
+                            x)</strong>. It first forms a linear score from the features, then maps that score to a
+                        probability. A separate threshold turns the probability into a class label. These are three
+                        different operations.</p>
+                    <div class="lr-equation bg-white border rounded-3 p-3 p-sm-4 my-4">
+                        <p class="fs-4 font-monospace mb-2">z = b + w₁x₁ + ⋯ + w<sub>d</sub>x<sub>d</sub></p>
+                        <p class="fs-4 font-monospace mb-2">p = σ(z) = 1 / (1 + e<sup>−z</sup>)</p>
+                        <p class="font-monospace mb-0">ŷ = 1 if p ≥ t; otherwise ŷ = 0</p>
+                    </div>
+                    <p>Here x is a feature vector, w contains learned coefficients, b is an intercept, and t is a
+                        decision threshold. The score z can be any real number. The sigmoid produces a number strictly
+                        between 0 and 1 for finite z. That makes it a valid probability parameter, although validity
+                        alone does not establish that the probabilities are accurate.</p>
+                    <p>Ordinary least squares applied directly to binary outcomes can predict values below zero or above
+                        one. Logistic regression instead specifies a Bernoulli outcome model with a linear relationship
+                        on the <em>log-odds</em> scale. Its probability curve is nonlinear, but the model remains linear
+                        in the supplied features on that transformed scale. The classic statistical treatment includes
+                        Cox’s work on binary sequences <a href="#ref1">[1]</a>.</p>
+                </section>
+                <section id="sigmoid" class="mb-5">
+                    <p class="text-primary small fw-bold">02 / INTERACTIVE EXPERIMENT</p>
+                    <h2 class="fw-bold">Turn a score into a probability</h2>
+                    <p>The sigmoid has a midpoint at z = 0, where the probability is exactly 0.5. Positive scores favour
+                        class 1; negative scores favour class 0. Equal movements in z do not produce equal movements in
+                        probability.</p>
+                    <div class="lr-lab bg-white border rounded-3 p-3 p-sm-4">
+                        <div class="row g-4">
+                            <div class="col-md-8"><svg aria-describedby="sigplot-description" id="sigplot"
+                                    viewBox="0 0 640 340" class="w-100" role="img"
+                                    aria-label="Sigmoid probability curve with selected score"></svg>
+                                <p id="sigplot-description" class="visually-hidden">The sigmoid rises smoothly from
+                                    nearly zero at z = −8 to nearly one at z = 8, passing through (0, 0.5).</p>
+                            </div>
+                            <div class="col-md-4"><label for="z" class="form-label fw-bold">Linear score z</label><input
+                                    class="form-range" id="z" type="range" min="-8" max="8" step="0.1" value="0"><output
+                                    id="sigout" class="d-block" aria-live="polite"></output><button
+                                    class="btn btn-outline-primary btn-sm mt-3" id="resetSig">Reset to z = 0</button>
+                            </div>
+                        </div>
+                        <p class="small text-secondary mb-0">Try z = −2, 0 and 2. Then compare a one-unit change near
+                            the centre with a one-unit change near either tail.</p>
+                    </div>
+                    <h3 class="h4 mt-4">What the slope tells us</h3>
+                    <p class="font-monospace fs-5">dσ/dz = σ(z)[1 − σ(z)] = p(1 − p)</p>
+                    <p>The slope peaks at 0.25 when p = 0.5 and becomes small in the tails. Around an uncertain
+                        prediction, a small score change can noticeably alter the probability. Near an extreme
+                        prediction, the same score change has less effect. The symmetry σ(−z) = 1 − σ(z) explains why
+                        scores of equal magnitude on opposite sides of zero produce complementary probabilities.</p>
+                    <p>Do not interpret z = 2 as “twice as likely” as z = 1. Scores are log-odds, and the transformation
+                        is nonlinear. The explorer reports the score, probability, odds and local slope together so that
+                        you can see these distinctions directly.</p>
+                </section>
+                <section id="odds" class="mb-5">
+                    <p class="text-primary small fw-bold">03 / INTERPRETATION &amp; GEOMETRY</p>
+                    <h2 class="fw-bold">The linear relationship is in the log-odds</h2>
+                    <p>Odds compare the probability of an event with the probability of its complement. If p = 0.8, the
+                        odds are 0.8/0.2 = 4, often written 4:1. Taking their natural logarithm gives the logit.
+                        Rearranging the sigmoid yields:</p>
+                    <div class="lr-equation bg-white border rounded-3 p-3 p-sm-4 fs-5 font-monospace">log[p / (1 − p)] =
+                        b + wᵀx</div>
+                    <p class="mt-3">Holding other features constant, increasing feature xⱼ by one unit changes the
+                        log-odds by wⱼ and multiplies the odds by exp(wⱼ). A coefficient of approximately 0.693
+                        therefore doubles the odds. It does not double the probability: doubling odds from 1 to 2 moves
+                        p from 0.5 to about 0.667, whereas doubling odds from 4 to 8 moves p from 0.8 to about 0.889.
+                    </p>
+                    <p>This interpretation is conditional on the fitted model, feature encoding and units. A coefficient
+                        on a standardised variable describes a one-standard-deviation change. Correlated predictors can
+                        make individual coefficients unstable. An association in a predictive model is not evidence that
+                        intervening on that feature would cause the predicted change.</p>
+                    <h3 class="h4">Experiment: change the model, not the observation</h3>
+                    <p>Below, x is a hypothetical standardised feature. Adjust w and b to change the whole probability
+                        curve p(x) = σ(b + wx). The dashed horizontal line marks p = 0.5.</p>
+                    <div class="lr-lab bg-white border rounded-3 p-3 p-sm-4">
+                        <div class="row">
+                            <div class="col-md-8"><svg aria-describedby="coefplot-description" id="coefplot"
+                                    viewBox="0 0 640 340" class="w-100" role="img"
+                                    aria-label="Probability versus feature value for adjustable coefficient and intercept"></svg>
+                                <p id="coefplot-description" class="visually-hidden">Adjusting the coefficient changes
+                                    the slope and direction; adjusting the intercept changes the probability at x = 0.
+                                </p>
+                            </div>
+                            <div class="col-md-4"><label class="form-label" for="w">Coefficient w</label><input
+                                    class="form-range" type="range" id="w" min="-4" max="4" step="0.1" value="1"><label
+                                    class="form-label" for="b">Intercept b</label><input class="form-range" type="range"
+                                    id="b" min="-4" max="4" step="0.1" value="0"><output id="coefout"
+                                    aria-live="polite"></output><button id="resetCoef"
+                                    class="btn btn-outline-primary btn-sm mt-3 d-block">Reset coefficients</button>
+                            </div>
+                        </div>
+                    </div>
+                    <p class="mt-3">For w ≠ 0, the 0.5 crossing occurs at x = −b/w. A negative coefficient reverses the
+                        direction of the curve. With w = 0, x has no influence and all observations receive σ(b). In
+                        multiple dimensions, the threshold boundary is wᵀx + b = log[t/(1 − t)]. It is a hyperplane in
+                        the supplied feature space.</p>
+                    <p>Adding x², interactions or spline features can create a curved boundary in the original input
+                        space. “Linear classifier” does not mean that feature engineering is forbidden; it identifies
+                        where the linearity assumption lives.</p>
+                </section>
+                <section id="fit" class="mb-5">
+                    <p class="text-primary small fw-bold">04 / FROM PROBABILITY TO LEARNING</p>
+                    <h2 class="fw-bold">Learning the coefficients with maximum likelihood</h2>
+                    <p>For one labelled observation, a Bernoulli model assigns probability pᵞ(1 − p)¹⁻ᵞ to the observed
+                        outcome. This compact expression selects p when y = 1 and 1 − p when y = 0. Under a
+                        conditionally independent-observations likelihood, multiplying these contributions gives the
+                        likelihood of the training labels.</p>
+                    <div class="lr-equation bg-white border rounded-3 p-3 p-sm-4 font-monospace">
+                        <p>L(w,b) = ∏ᵢ pᵢ<sup>yᵢ</sup>(1 − pᵢ)<sup>1−yᵢ</sup></p>
+                        <p class="mb-0">J(w,b) = −(1/n) ∑ᵢ [yᵢ log pᵢ + (1 − yᵢ) log(1 − pᵢ)]</p>
+                    </div>
+                    <p class="mt-3">Maximising likelihood is equivalent to minimising its negative logarithm. Dividing
+                        by n changes the scale, not the unregularised minimiser. The resulting objective is binary
+                        cross-entropy, also called log-loss. It evaluates how much probability the model assigned to the
+                        outcome that actually occurred.</p>
+                    <h3 class="h4">Why the gradient is surprisingly simple</h3>
+                    <p>For one observation, differentiate the loss with respect to p and multiply by dp/dz = p(1 − p).
+                        The terms cancel, leaving ∂ℓ/∂z = p − y. Applying the chain rule to z = b + wᵀx gives:</p>
+                    <div class="lr-equation bg-white border rounded-3 p-3 p-sm-4 font-monospace">
+                        <p>∇<sub>w</sub>J = (1/n) Xᵀ(p − y)</p>
+                        <p>∂J/∂b = (1/n) ∑ᵢ (pᵢ − yᵢ)</p>
+                        <p class="mb-0">w ← w − η∇<sub>w</sub>J; b ← b − η∂J/∂b</p>
+                    </div>
+                    <p class="mt-3">If an observation has y = 1 but the model predicts a small p, its residual p − y is
+                        negative. The gradient update pushes its score upward, subject to the contributions of other
+                        observations. η is the learning rate. An overly large value can make updates unstable; a very
+                        small value can make progress slow.</p>
+                    <p>The sigmoid’s small tail derivative does not by itself imply a tiny log-loss gradient for a
+                        confidently wrong example. For y = 1 and p close to zero, p − y is close to −1. This is a useful
+                        distinction between the derivative of the activation and the derivative of the complete
+                        objective.</p>
+                    <h3 class="h4">Convexity is helpful—but not a guarantee of a finite solution</h3>
+                    <p>With the intercept included as a constant feature, the unregularised Hessian is XᵀWX/n, where W
+                        has diagonal entries pᵢ(1 − pᵢ). It is positive semidefinite, so the objective is convex in the
+                        coefficients. There are no worse local minima to escape. Yet rank deficiency can prevent
+                        uniqueness, and separable data can prevent a finite maximum-likelihood estimate altogether.</p>
+                    <p>Libraries commonly use solvers such as L-BFGS or Newton-type methods rather than a hand-written
+                        fixed-step loop. Solver convergence and statistical generalisation are separate questions: a
+                        precisely optimised model can still be misspecified or evaluated on the wrong data.</p>
+                </section>
+                <section id="loss" class="mb-5">
+                    <p class="text-primary small fw-bold">05 / INTERACTIVE EXPERIMENT</p>
+                    <h2 class="fw-bold">Why confident mistakes are expensive</h2>
+                    <p>Choose an observed label and change the predicted probability. For y = 1, loss is −log(p); for y
+                        = 0, it is −log(1 − p). The graph shows both possibilities, with your selected observation
+                        highlighted.</p>
+                    <div class="lr-lab bg-white border rounded-3 p-3 p-sm-4">
+                        <div class="row g-3">
+                            <div class="col-md-8"><svg aria-describedby="lossplot-description" id="lossplot"
+                                    viewBox="0 0 640 340" class="w-100" role="img"
+                                    aria-label="Binary log-loss curves for both observed classes"></svg>
+                                <p id="lossplot-description" class="visually-hidden">For an actual positive, loss
+                                    decreases as predicted probability rises; for an actual negative, loss increases.
+                                </p>
+                            </div>
+                            <div class="col-md-4"><label for="label" class="form-label">Observed label</label><select
+                                    id="label" class="form-select mb-3">
+                                    <option value="1">y = 1 · positive</option>
+                                    <option value="0">y = 0 · negative</option>
+                                </select><label for="prob" class="form-label">Predicted p</label><input id="prob"
+                                    class="form-range" type="range" min="0.01" max="0.99" step="0.01"
+                                    value="0.5"><output id="lossout" aria-live="polite"></output></div>
+                        </div>
+                        <p class="small text-secondary mb-0">Blue: y = 1. Orange: y = 0. Plot range p = 0.01–0.99; loss
+                            diverges at the wrong endpoint.</p>
+                    </div>
+                    <p class="mt-3">For y = 1, p = 0.9 gives about 0.105 loss, while p = 0.1 gives about 2.303. At p =
+                        0.5, either label gives approximately 0.693. All logarithms here are natural logarithms, so loss
+                        is measured in nats.</p>
+                    <h3 class="h4">Numerical stability matters</h3>
+                    <p>Computing log(σ(z)) naively can overflow or produce log(0). A stable logit-based expression is
+                        ℓ(z,y) = max(z,0) − yz + log(1 + exp(−|z|)). It is mathematically equivalent to softplus(z) − yz
+                        but avoids exponentiating a large positive number. Clipping probabilities can protect display
+                        code, but production training should use stable implementations.</p>
+                    <h3 class="h4">Regularisation controls coefficient growth</h3>
+                    <p>One common objective is J<sub>λ</sub> = J + (λ/2)‖w‖², with the intercept unpenalised. Its weight
+                        gradient adds λw. L2 discourages large coefficients; L1 can set coefficients exactly to zero.
+                        The choice changes the fitted model, not just its presentation. Standardising continuous
+                        features makes a shared penalty more comparable across their scales.</p>
+                    <p>In scikit-learn, C controls inverse regularisation strength: smaller C means stronger
+                        regularisation. Exact scaling depends on the library’s objective convention, so do not assume C
+                        = 1/λ for every handwritten loss. Use the library documentation for solver and penalty
+                        compatibility <a href="#ref2">[2]</a>.</p>
+                </section>
+                <section id="threshold" class="mb-5">
+                    <p class="text-primary small fw-bold">06 / PROBABILITIES ARE NOT DECISIONS</p>
+                    <h2 class="fw-bold">Move the threshold. Change the consequences.</h2>
+                    <p>This example uses 20 illustrative observations with fixed scores to demonstrate how the decision
+                        threshold affects predictions. Lowering t can recover more positives, but it can also generate
+                        more false alarms. Changing the threshold never changes these probabilities.</p>
+                    <div class="lr-lab bg-white border rounded-3 p-3 p-sm-4"><label class="form-label fw-bold"
+                            for="thresholdInput">Decision threshold t</label><input class="form-range"
+                            id="thresholdInput" type="range" min="0" max="1" step="0.01" value="0.5">
+                        <div id="thresholdout" aria-live="polite"></div><svg
+                            aria-describedby="thresholdplot-description" id="thresholdplot" viewBox="0 0 640 180"
+                            class="w-100 mt-3" role="img"
+                            aria-label="Fixed probabilities with positive and negative labels and decision threshold"></svg>
+                        <p id="thresholdplot-description" class="visually-hidden">Each dot is a labelled observation.
+                            The shaded region contains probabilities at or above the selected threshold.</p>
+                        <div class="table-responsive">
+                            <table class="table table-sm">
+                                <caption>Fixed illustrative data; prediction rule p ≥ t.</caption>
+                                <thead>
+                                    <tr>
+                                        <th>Observation</th>
+                                        <th>Probability</th>
+                                        <th>Actual</th>
+                                        <th>Predicted</th>
+                                        <th>Outcome</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="observations"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="mt-3">Precision = TP/(TP + FP) asks how many positive predictions were correct. Recall =
+                        TP/(TP + FN) asks how many actual positives were recovered. Specificity = TN/(TN + FP) describes
+                        correctly rejected negatives. When a denominator is zero, this demonstration reports “undefined”
+                        rather than pretending a ratio exists.</p>
+                    <p>Recall cannot decrease as the threshold is lowered on fixed data. Precision need not change
+                        monotonically. Accuracy can be misleading when one class dominates: if only 1% of cases are
+                        positive, always predicting negative achieves 99% accuracy but zero recall.</p>
+                    <h3 class="h4">Choosing a threshold using costs</h3>
+                    <p>Suppose a false positive costs C<sub>FP</sub>, a false negative costs C<sub>FN</sub>, and correct
+                        decisions have zero cost. Given an accurate conditional probability p, the expected cost of
+                        predicting positive is C<sub>FP</sub>(1 − p); for predicting negative it is C<sub>FN</sub>p.
+                        Comparing the two yields t = C<sub>FP</sub>/(C<sub>FP</sub> + C<sub>FN</sub>). This derivation
+                        assumes constant costs and no capacity constraints. Real operating rules may require a different
+                        objective.</p>
+                    <p>Tune decision thresholds on validation data or appropriate cross-validation, then lock the choice
+                        before testing. Optimising a threshold on the final test set turns that set into development
+                        data. The scikit-learn threshold guide explicitly separates probability estimation from the
+                        decision rule <a href="#ref3">[3]</a>.</p>
+                    <h3 class="h4">Discrimination and calibration answer different questions</h3>
+                    <p>ROC-AUC measures ranking across positive-negative pairs; it does not assess whether a predicted
+                        0.8 corresponds to an 80% event frequency. Precision-recall analysis is often informative when
+                        positive retrieval is the operational concern; its baseline and values depend on prevalence.
+                        Report the positive class and class distribution rather than treating one metric as universal.
+                    </p>
+                    <p>Calibration asks whether groups of similar predicted probabilities have corresponding event
+                        frequencies. Reliability plots compare average predictions with observed fractions within bins,
+                        but small bins are noisy. Log-loss and Brier score evaluate probability quality, though neither
+                        isolates calibration alone. Logistic regression is not automatically calibrated under
+                        misspecification, strong regularisation, sampling changes or distribution shift <a
+                            href="#ref4">[4]</a>.</p>
+                </section>
+                <section id="practice" class="mb-5">
+                    <p class="text-primary small fw-bold">07 / REPRODUCIBLE PRACTICE</p>
+                    <h2 class="fw-bold">A workflow that keeps the test set untouched</h2>
+                    <p>This runnable Python example generates synthetic classification data, reserves validation and
+                        test subsets, fits scaling only through the training pipeline, and selects a threshold on
+                        validation F1. F1 is a demonstration objective, not a recommendation for every application. A
+                        fixed seed supports reproducibility; record Python and package versions alongside any reported
+                        results.</p>
+                    <pre class="code-panel"><code>import numpy as np
+from sklearn.datasets import make_classification
+from sklearn.model_selection import train_test_split
+from sklearn.pipeline import make_pipeline
+from sklearn.preprocessing import StandardScaler
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import (f1_score, roc_auc_score,
+    average_precision_score, log_loss, brier_score_loss,
+    confusion_matrix)
+
+X, y = make_classification(
+    n_samples=2000, n_features=10, n_informative=5,
+    n_redundant=2, weights=[0.75, 0.25],
+    class_sep=1.0, flip_y=0.03, random_state=42)
+X_dev, X_test, y_dev, y_test = train_test_split(
+    X, y, test_size=0.2, stratify=y, random_state=42)
+X_train, X_val, y_train, y_val = train_test_split(
+    X_dev, y_dev, test_size=0.25,
+    stratify=y_dev, random_state=42)
+
+model = make_pipeline(
+    StandardScaler(),
+    LogisticRegression(C=1.0, solver="lbfgs", max_iter=2000))
+model.fit(X_train, y_train)
+positive_index = list(model.classes_).index(1)
+p_val = model.predict_proba(X_val)[:, positive_index]
+thresholds = np.linspace(0.05, 0.95, 181)
+scores = [f1_score(y_val, p_val &gt;= t, zero_division=0)
+          for t in thresholds]
+t = thresholds[int(np.argmax(scores))]
+# Keep this model and threshold fixed for final evaluation.
+p_test = model.predict_proba(X_test)[:, positive_index]
+pred = (p_test &gt;= t).astype(int)
+print("Chosen threshold:", t)
+print("ROC-AUC:", roc_auc_score(y_test, p_test))
+print("Average precision:", average_precision_score(y_test, p_test))
+print("Log-loss:", log_loss(y_test, p_test))
+print("Brier:", brier_score_loss(y_test, p_test))
+print("F1:", f1_score(y_test, pred, zero_division=0))
+print("Confusion matrix [rows=actual, columns=predicted]:")
+print(confusion_matrix(y_test, pred, labels=[0, 1]))</code></pre>
+                    <p>Average precision is a particular summary of the precision-recall curve; it is not always
+                        numerically identical to trapezoidal PR-AUC. The example deliberately prints results when run
+                        rather than publishing invented scores. It holds C fixed; a fuller study would tune C inside the
+                        development data and account for threshold selection in its validation design.</p>
+                    <p>For repeated measurements from the same person, shop or vehicle, use group-aware splits when
+                        evaluating generalisation to unseen groups. For future prediction, use a chronological split and
+                        construct every feature from information available at prediction time. Random stratified
+                        splitting is appropriate only when its exchangeability assumptions match the question.</p>
+                    <h3 class="h4">What to check before trusting the model</h3>
+                    <ul>
+                        <li><strong>Target timing:</strong> define the event, observation window and prediction horizon.
+                        </li>
+                        <li><strong>Leakage:</strong> exclude post-outcome features; fit imputation, scaling and feature
+                            selection inside training folds.</li>
+                        <li><strong>Specification:</strong> inspect plausible nonlinearities and interactions instead of
+                            assuming linear log-odds are adequate.</li>
+                        <li><strong>Stability:</strong> examine convergence warnings, correlated predictors, rare
+                            categories and coefficient sensitivity.</li>
+                        <li><strong>Evaluation:</strong> compare with simple baselines; report uncertainty using a
+                            resampling scheme consistent with the sampling unit.</li>
+                        <li><strong>Deployment:</strong> monitor prevalence, input distributions, calibration and
+                            operational error costs over time.</li>
+                    </ul>
+                </section>
+                <section id="research" class="mb-5">
+                    <p class="text-primary small fw-bold">08 / A RESEARCH PERSPECTIVE</p>
+                    <h2 class="fw-bold">What happens when the data are perfectly separable?</h2>
+                    <p>Suppose one hyperplane classifies every training observation correctly. Scaling its coefficients
+                        upward pushes positive examples toward probability 1 and negatives toward 0. The unregularised
+                        log-loss approaches zero, but generally does not attain zero at any finite coefficient vector.
+                        The maximum-likelihood coefficients can therefore diverge even though training classification is
+                        already perfect.</p>
+                    <p>Soudry and colleagues studied gradient descent for unregularised logistic regression with
+                        homogeneous linear predictors on separable data. Under their stated conditions, the predictor’s
+                        direction converges to the hard-margin SVM direction even while its norm grows <a
+                            href="#ref5">[5]</a>. This is an example of implicit bias: the optimisation procedure
+                        influences which solution is approached. It is not a claim that arbitrary logistic models,
+                        optimisers or nonlinear networks always behave this way.</p>
+                    <p>Practically, a low training error is not enough. Track held-out log-loss and coefficient
+                        magnitude, use explicit regularisation where appropriate, and distinguish a classification
+                        boundary from calibrated probability estimation. This paper provides a theoretical lens, not
+                        validation of the demonstrations in this article.</p>
+                    <h3 class="h4">How to turn this tutorial into an empirical study</h3>
+                    <p>A useful research question would be: <em>How do regularisation and class imbalance affect
+                            discrimination, probability calibration and threshold stability?</em> Predefine the
+                        comparison: unregularised or weakly regularised logistic regression, an L2 sweep, and a simple
+                        baseline. Generate multiple independent datasets across controlled imbalance and overlap levels,
+                        then repeat an identical training/validation/test protocol.</p>
+                    <p>Report distributions of test log-loss, Brier score, ROC-AUC, average precision, selected
+                        thresholds and coefficient norms across seeds. Separate changes in the training prevalence from
+                        changes in the evaluation population. If class weighting is introduced, treat it as a new
+                        objective and check probability calibration rather than assuming its scores retain the original
+                        population interpretation.</p>
+                    <p>The key deliverable would be a reproducible experiment with a fixed protocol, uncertainty
+                        estimates, failure cases and a discussion of external validity. The sliders on this page support
+                        intuition; they cannot substitute for such an experiment.</p>
+                    <h3 class="h4">Three ideas to carry forward</h3>
+                    <ol>
+                        <li>The model is linear in log-odds, not in probability.</li>
+                        <li>Log-loss trains probability estimates; thresholds govern decisions.</li>
+                        <li>A convincing result requires a suitable evaluation design, not just a converged optimiser.
+                        </li>
+                    </ol>
+                </section>
+                <section id="references" class="border-top pt-4">
+                    <h2 class="h3 fw-bold">References &amp; further reading</h2>
+                    <p class="text-secondary">Primary research and official documentation. Mathematical derivations and
+                        interactive plots are original instructional material. Accessed 15 October 2026.</p>
+                    <ol class="reference-list">
+                        <li id="ref1" class="mb-3">Cox, D. R. (1958). <a href="https://www.jstor.org/stable/2983890">The
+                                Regression Analysis of Binary Sequences</a>. Journal of the Royal Statistical Society,
+                            Series B, 20(2), 215–242. Historical statistical context.</li>
+                        <li id="ref2" class="mb-3">scikit-learn developers. <a
+                                href="https://scikit-learn.org/stable/modules/linear_model.html#logistic-regression">Logistic
+                                regression user guide</a>. Implementation, regularisation and solver conventions.</li>
+                        <li id="ref3" class="mb-3">scikit-learn developers. <a
+                                href="https://scikit-learn.org/stable/modules/classification_threshold.html">Tuning the
+                                decision threshold for class prediction</a>. Separation of estimation and decisions.
+                        </li>
+                        <li id="ref4" class="mb-3">scikit-learn developers. <a
+                                href="https://scikit-learn.org/stable/modules/calibration.html">Probability
+                                calibration</a>. Reliability diagrams and calibration evaluation.</li>
+                        <li id="ref5" class="mb-3">Soudry, D., Hoffer, E., Nacson, M. S., Gunasekar, S., &amp; Srebro,
+                            N. (2018). <a href="https://jmlr.org/papers/v19/18-188.html">The Implicit Bias of Gradient
+                                Descent on Separable Data</a>. Journal of Machine Learning Research, 19(70), 1–57.</li>
+                    </ol>
+                    <a class="btn btn-outline"
+                        href="https://www.linkedin.com/in/agrawalrahul1025/">Discuss this article on LinkedIn ↗</a>
+                </section>
+            </div>
+        </article>
+    </main>
+    <footer class="site-footer">
+        <div class="wrap">
+            <span>&copy; 2026 Rahul Agrawal</span>
+            <div class="links">
+                <a href="index.html">All articles</a>
+                <a href="../index.html">Back to portfolio &rarr;</a>
+            </div>
+        </div>
+    </footer><noscript>
+        <div class="wrap">
+            <p class="note">Enable JavaScript to use the interactive experiments. You can still read the full article
+                and its equations.</p>
+        </div>
+    </noscript>
+</body>
+
+</html>
