@@ -395,6 +395,8 @@ a:focus-visible {
 
 .article-body p {
     margin: 0 0 1.35rem;
+    text-align: justify;
+    hyphens: auto;
 }
 
 .article-body h2 {
